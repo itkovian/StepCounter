@@ -135,8 +135,8 @@ public class StappentellerActivity extends Activity {
 				    			   + ":" + event.values[1]
 				    	    	   + ":" + event.values[2]
 				    	           + ":" + linear_acceleration[0]
-				    	           + ":" + linear_acceleration[0]
-				    	           + ":" + linear_acceleration[0]
+				    	           + ":" + linear_acceleration[1]
+				    	           + ":" + linear_acceleration[2]
 				    	    	   + "\n");
 			} catch (IOException e) {
 				// TODO
