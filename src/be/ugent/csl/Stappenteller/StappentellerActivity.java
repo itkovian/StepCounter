@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -30,14 +31,35 @@ public class StappentellerActivity extends Activity {
         
        	mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
        	mPView = new PView(this);
+       	
+       	boolean mExternalStorageAvailable = false;
+       	boolean mExternalStorageWriteable = false;
+       	String state = Environment.getExternalStorageState();
+
+       	if (Environment.MEDIA_MOUNTED.equals(state)) {
+       	    // We can read and write the media
+       	    mExternalStorageAvailable = mExternalStorageWriteable = true;
+       	} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+       	    // We can only read the media
+       	    mExternalStorageAvailable = true;
+       	    mExternalStorageWriteable = false;
+       	} else {
+       	    // Something else is wrong. It may be one of many other states, but all we need
+       	    //  to know is we can neither read nor write
+       	    mExternalStorageAvailable = mExternalStorageWriteable = false;
+       	}
+       	
        	externalStorage = Environment.getExternalStorageDirectory();
+       	File t = new File(externalStorage,"acceldata");
        	try {
-       		acceleroCache = new BufferedWriter(new FileWriter(externalStorage + File.pathSeparator + "stappentellertestdata"));
+       		acceleroCache = new BufferedWriter(new FileWriter(t));
        	}
        	catch(IOException e) {
        		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle("MyException Occured");
-            dialog.setMessage(e.getMessage());
+            dialog.setTitle("IOException Occured");
+            dialog.setMessage( "mExternalStorageAvailable = " + mExternalStorageAvailable + "\n"
+            		         + "mExternalStorageWriteable = " + mExternalStorageWriteable + "\n"
+            		         + e.getMessage());
             dialog.setNeutralButton("Cool", null);
             dialog.create().show();    		
        	}
@@ -52,8 +74,11 @@ public class StappentellerActivity extends Activity {
 			acceleroCache.flush();
 			acceleroCache.close();
     	} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("IOException Occured");
+            dialog.setMessage(e.getMessage());
+            dialog.setNeutralButton("Cool", null);
+            dialog.create().show();    	
 		}
     	
     	
@@ -112,10 +137,9 @@ public class StappentellerActivity extends Activity {
 				    	           + ":" + linear_acceleration[0]
 				    	           + ":" + linear_acceleration[0]
 				    	           + ":" + linear_acceleration[0]
-				    	    	   );
+				    	    	   + "\n");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// TODO
 			}
 	    	
 	
