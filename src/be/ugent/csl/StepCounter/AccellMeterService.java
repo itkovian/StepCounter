@@ -1,4 +1,4 @@
-package be.ugent.csl.Stappenteller;
+package be.ugent.csl.StepCounter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 public class AccellMeterService extends Service implements SensorEventListener  {
 	
-	private final String TAG = "be.ugent.csl.Stappenteller.AccellMeterService";
+	private final String TAG = "be.ugent.csl.StepCounter.AccellMeterService";
 	private SensorManager mSensorManager;
 	private Sensor mAccellSensor;
 	

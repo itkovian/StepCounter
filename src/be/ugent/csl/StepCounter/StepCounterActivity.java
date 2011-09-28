@@ -1,5 +1,6 @@
-package be.ugent.csl.Stappenteller;
+package be.ugent.csl.StepCounter;
 
+import be.ugent.csl.StepCounter.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +9,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 
-public class StappentellerActivity extends Activity {
+public class StepCounterActivity extends Activity {
     
 	private final String accellLogFileName = "accelDataLog";
 	
@@ -44,21 +45,6 @@ public class StappentellerActivity extends Activity {
     	
     	super.onDestroy();
     }
-    
-    
- 
-	    /*
-	    	super.setText( "Current timestamp = " + event.timestamp + "\n"
-	    			     + "Current accurecy = " + event.accuracy + "\n"
-	    			     + "Actual sensor X-value([0]) = " + event.values[0] + "\n"
-	    			     + "Actual sensor Y-value([1]) = " + event.values[1] + "\n"
-	    			     + "Actual sensor Z-value([2]) = " + event.values[2] + "\n"
-	    			     + "\n"
-	    			     + "Acceleration X-value = " + linear_acceleration[0] + "\n"
-	    			     + "Acceleration Y-value = " + linear_acceleration[1] + "\n"
-	    			     + "Acceleration Z-value = " + linear_acceleration[2] + "\n"
-	    			     );
-	    	*/
         
     
 }
