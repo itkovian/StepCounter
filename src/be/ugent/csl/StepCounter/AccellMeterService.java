@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.Sensor;
