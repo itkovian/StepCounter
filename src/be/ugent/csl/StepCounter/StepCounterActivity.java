@@ -92,6 +92,7 @@ public class StepCounterActivity extends Activity {
 				case 3: text = "FASTEST"; break;
 				}
 				sampleRateText.setText(text);
+				// FIXME: there seems to be an error here when tilting the phone.
 				accellMeterService.setAccuracy(progress);	
 			}
 
@@ -151,7 +152,7 @@ public class StepCounterActivity extends Activity {
        	Log.i(TAG, "AccelMeterService bound");
        	
        	/* we also need to start the service explicitly, with the same intent to make sure
-       	 * the service keeps running even when the acticity loses focus. 
+       	 * the service keeps running even when the activity loses focus. 
        	 */
        	startService(i);	  
        	Log.i(TAG, "AccellMeterService started");
