@@ -2,4 +2,9 @@
 <resources>
     <string name="hello">Hello World, StappentellerActivity!</string>
     <string name="app_name">Stappenteller</string>
+    <string name="filter_prompt">Choose a filter</string>
+    <string-array name="filter_array">
+    	<item>No detection</item>
+    	<item>NullStepDetector</item>
+    </string-array>
 </resources>

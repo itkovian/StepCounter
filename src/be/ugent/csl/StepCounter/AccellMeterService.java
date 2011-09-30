@@ -12,23 +12,41 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-
+/*
+ * @author Andy Georges
+ * 
+ */
 
 public class AccellMeterService extends Service implements SensorEventListener  {
 	
+	/* Communication with the using Activity */
+    private LocalBinder accellBinder = new LocalBinder();
+    	
+    /* Various */
 	private final String TAG = "be.ugent.csl.StepCounter.AccellMeterService";
+	
+	/* Sensor shizzle */
 	private SensorManager mSensorManager;
 	private Sensor mAccellSensor;
 	
-	private BufferedWriter accellLog = null;
-	private boolean started = false;
-	
+	/* Sensor data structures */
 	private double [] gravity = new double[3]; 
+	
+	/* Logging the measurements */
+	private BufferedWriter accellLog = null;
+	
+	/* Global fugly shizzle */
+	private boolean started = false;
+	private boolean registered = false;
+	
+	/* Step detection */
+	private StepDetection detector = null;
 	
 	@Override 
 	public void onCreate() {
@@ -39,15 +57,13 @@ public class AccellMeterService extends Service implements SensorEventListener  
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mAccellSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
        	
-		Toast.makeText(this, "AccellMeterService created", Toast.LENGTH_LONG).show();
 		Log.i(TAG, "AccellMeterService started");
 	}
 	
 	
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        
-    	
+
     	synchronized(this) {
     		if(started) {
     			return START_STICKY;
@@ -57,30 +73,31 @@ public class AccellMeterService extends Service implements SensorEventListener  
        	File externalStorage = Environment.getExternalStorageDirectory();
        	String accellLogFileName = intent.getStringExtra("AccellLogFileName");
        	
-       	Toast.makeText(this, "External storage at " + externalStorage, Toast.LENGTH_LONG).show();
-       	
        	try {
        		accellLog = new BufferedWriter(new FileWriter(new File(externalStorage, accellLogFileName)));
        	}
        	catch(IOException e) {
        		// TOO BAD, service will not log to a file.
-       		Toast.makeText(this, "IOException caught when opening a writer to " + accellLogFileName, Toast.LENGTH_LONG).show();
        		Log.e(TAG, "IOException when opening a writer to " + accellLogFileName, e);
        	}
        	
-       	boolean registered = mSensorManager.registerListener(this, mAccellSensor, SensorManager.SENSOR_DELAY_NORMAL);
-    	
-    	Toast.makeText(this, "AccellMeterService started: " + registered, Toast.LENGTH_LONG).show();
     	synchronized(this) {
-    		started = true;
+    		registered = mSensorManager.registerListener(this, mAccellSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        	started = true;
     	}
     	return START_STICKY;
-    
     }
+    
     
     @Override 
     public IBinder onBind(Intent intent) {
-		return null;
+		return accellBinder;
+    }
+    
+    public class LocalBinder extends Binder {
+    	AccellMeterService getService() {
+    		return AccellMeterService.this;
+    	}
     }
     
     @Override
@@ -98,7 +115,6 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	super.onDestroy();
 
     	Log.i(TAG, "AccellMeterService destroyed");
-
     }
     
     
@@ -106,7 +122,7 @@ public class AccellMeterService extends Service implements SensorEventListener  
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     	// TODO Auto-generated method stub
-
+    	//Log.i(TAG, "The accuracy for " + sensor + "was set to " + accuracy);
     }
 
     @Override
@@ -147,9 +163,30 @@ public class AccellMeterService extends Service implements SensorEventListener  
 			    	       + ":" + linear_acceleration[2]
 			    	       + "\n");
 		} catch (IOException e) {
-			//Toast.makeText(this, "IOEXception caught when writing to " + accellLog, Toast.LENGTH_LONG).show();
+			// TOO BAD. Nothing got written to the buffer/file.
 		}
 			
 	}
-    	     
+    
+    public float getResolution() {
+    	return mAccellSensor.getResolution();
+    }
+    
+    public void setAccuracy(int accuracy) {
+    	/* unregister first, otherwise the listener keeps receiving data at the highest set rate */
+    	synchronized(this) {
+    		if(registered) {
+    			mSensorManager.unregisterListener(this);
+    			registered = false;
+    		}
+    	   	if(mSensorManager.registerListener(this, mAccellSensor, accuracy)) {
+    	   		Log.i(TAG, "Sensor accuracy changed to " + accuracy);
+    	   		registered = true;
+    	   	}
+    	}
+    }
+    	 
+    public void setFilter(StepDetection filter) {
+    	detector = filter;
+    }
 }
