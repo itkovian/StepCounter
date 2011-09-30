@@ -146,6 +146,9 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	linear_acceleration[1] = event.values[1] - gravity[1];
     	linear_acceleration[2] = event.values[2] - gravity[2];
 
+    	if(detector != null) {
+    		detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2])
+    	}
     	Log.i(TAG, "SENSORVALUES: " + event.timestamp 
 					       + ":" + event.values[0]
 			    		   + ":" + event.values[1]
@@ -163,7 +166,7 @@ public class AccellMeterService extends Service implements SensorEventListener  
 			    	       + ":" + linear_acceleration[2]
 			    	       + "\n");
 		} catch (IOException e) {
-			// TOO BAD. Nothing got written to the buffer/file.
+			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
 		}
 			
 	}

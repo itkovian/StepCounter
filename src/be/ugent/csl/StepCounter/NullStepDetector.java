@@ -13,9 +13,8 @@ public class NullStepDetector implements StepDetection {
 	 * @see be.ugent.csl.StepCounter.StepDetection#addData(int, int, int, int)
 	 */
 	@Override
-	public void addData(int timestamp, int xAccell, int yAccell, int zAccell) {
-		// TODO Auto-generated method stub
-
+	public void addData(long timestamp, double xAccell, double yAccell, double zAccell) {
+		// Nothing
 	}
 
 	/* (non-Javadoc)
@@ -23,7 +22,6 @@ public class NullStepDetector implements StepDetection {
 	 */
 	@Override
 	public boolean stepDetected() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
