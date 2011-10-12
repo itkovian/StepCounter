@@ -118,14 +118,11 @@ public class AccellMeterService extends Service implements SensorEventListener  
     }
     
     
-    
-    @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     	// TODO Auto-generated method stub
     	//Log.i(TAG, "The accuracy for " + sensor + "was set to " + accuracy);
     }
 
-    @Override
     public void onSensorChanged(SensorEvent event) {
     	if(event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) {
     		return;

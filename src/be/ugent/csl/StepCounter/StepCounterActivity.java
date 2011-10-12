@@ -65,7 +65,6 @@ public class StepCounterActivity extends Activity {
         /* the closing button */
         closeButton = (Button) findViewById(R.id.close);
         closeButton.setOnTouchListener(new OnTouchListener() {
-          @Override
           public boolean onTouch(View v, MotionEvent e) {
             finish();
             return true;
@@ -81,27 +80,24 @@ public class StepCounterActivity extends Activity {
         rateMultiplier = (SeekBar)this.findViewById(R.id.rateMultiplier);
         rateMultiplier.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
-			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
 				String text = null;
 				switch(progress) {
-				case 0: text = "UI"; break;
-				case 1: text = "NORMAL"; break;
-				case 2: text = "GAME"; break;
-				case 3: text = "FASTEST"; break;
+				case 0: text = "FASTEST"; break;
+				case 1: text = "GAME"; break;
+				case 2: text = "UI"; break;
+				case 3: text = "NORMAL"; break;
 				}
 				sampleRateText.setText(text);
 				// FIXME: there seems to be an error here when tilting the phone.
 				accellMeterService.setAccuracy(progress);	
 			}
 
-			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub	
 			}
 
-			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				// TODO Auto-generated method stub	
 			}
@@ -117,7 +113,6 @@ public class StepCounterActivity extends Activity {
         filterSpinner.setAdapter(filterAdapter);
         filterSpinner.setOnItemSelectedListener(new OnItemSelectedListener () {
 
-			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
 				String value = parent.getItemAtPosition(pos).toString();
@@ -137,7 +132,6 @@ public class StepCounterActivity extends Activity {
 				accellMeterService.setFilter(detector);
 			}
 
-			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
 				// TODO Auto-generated method stub	
 			}
