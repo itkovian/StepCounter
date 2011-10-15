@@ -216,5 +216,6 @@ public class AccellMeterService extends Service implements SensorEventListener  
     
     public void setLogging(boolean logging) {
     	this.logging = logging;
+    	logString("Changed logging data to " + logging);
     }
 }
