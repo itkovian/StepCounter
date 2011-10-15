@@ -10,11 +10,16 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -32,6 +37,7 @@ public class StepCounterActivity extends Activity {
 	
 	/* UI items */
 	private Button closeButton;
+	private Button logButton;
 	private SeekBar rateMultiplier;
 	private TextView sampleRateText;
 	private Spinner filterSpinner;
@@ -151,6 +157,28 @@ public class StepCounterActivity extends Activity {
        	startService(i);	  
        	Log.i(TAG, "AccellMeterService started");
         
+       	/* The log button */
+       	logButton = (Button) findViewById(R.id.addMessageButton);
+       	
+       	final EditText data = (EditText) findViewById(R.id.messageData);
+
+       	logButton.setOnClickListener(new OnClickListener() {
+       		@Override
+       		public void onClick(View v) {
+       			accellMeterService.logString(data.getText().toString());
+       		}
+       	});
+
+       	
+       	// TODO: MVC
+       	CheckBox logData = (CheckBox) findViewById(R.id.logData);
+       	logData.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+       		@Override
+       		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+       			accellMeterService.setLogging(isChecked);
+       		}
+       	});
+
     }
     
     public void onDestroy() {
