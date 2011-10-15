@@ -41,6 +41,14 @@
               android:layout_width="fill_parent"
               android:layout_height="wrap_content" />
     <!--             android:prompt="@string/filter_prompt" /> -->
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
+	    <EditText android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/messageData">
+	    	<requestFocus></requestFocus>
+        </EditText>
+		<Button android:text="Add message" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/addMessageButton"></Button>
+   </LinearLayout>
+   <CheckBox android:id="@+id/logData" android:layout_width="wrap_content" android:text="Log sensor data to file" android:layout_height="wrap_content"></CheckBox>
+    
     <Button android:id="@+id/close" 
             android:text="Quit" 
             android:layout_width="wrap_content" 
