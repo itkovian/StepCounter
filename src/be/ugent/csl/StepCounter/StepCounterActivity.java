@@ -159,11 +159,12 @@ public class StepCounterActivity extends Activity {
         
        	/* The log button */
        	logButton = (Button) findViewById(R.id.addMessageButton);
+       	
+       	final EditText data = (EditText) findViewById(R.id.messageData);
 
        	logButton.setOnClickListener(new OnClickListener() {
        		@Override
        		public void onClick(View v) {
-       			EditText data = (EditText) v;
        			accellMeterService.logString(data.getText().toString());
        		}
        	});
