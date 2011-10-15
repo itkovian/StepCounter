@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Calendar;
 
 import android.app.AlertDialog;
 import android.app.Service;
@@ -47,6 +48,9 @@ public class AccellMeterService extends Service implements SensorEventListener  
 	
 	/* Step detection */
 	private StepDetection detector = null;
+	
+	/* Log sensor values to the file */
+	private boolean logging = false;
 	
 	@Override 
 	public void onCreate() {
@@ -152,21 +156,42 @@ public class AccellMeterService extends Service implements SensorEventListener  
 			    	       + ":" + event.values[2]
 			    	       + ":" + linear_acceleration[0]
 			    	       + ":" + linear_acceleration[1]
-			    	       + ":" + linear_acceleration[2]);
-    	try {
-    		accellLog.write( event.timestamp 
-					       + ":" + event.values[0]
-			    		   + ":" + event.values[1]
-			    	       + ":" + event.values[2]
-			    	       + ":" + linear_acceleration[0]
-			    	       + ":" + linear_acceleration[1]
 			    	       + ":" + linear_acceleration[2]
-			    	       + "\n");
+			    	       + ":");
+    	try {
+    		if (logging) {
+    			accellLog.write( event.timestamp 
+    					+ ":" + event.values[0]
+    					+ ":" + event.values[1]
+			    	    + ":" + event.values[2]
+			    	    + ":" + linear_acceleration[0]
+			    	    + ":" + linear_acceleration[1]
+			    	    + ":" + linear_acceleration[2]
+			    	    + ":"
+			    	    + "\n");
+    		}
 		} catch (IOException e) {
 			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
 		}
 			
 	}
+    
+    public void logString(String string) {
+    	try {
+    	accellLog.write( Calendar.getInstance().getTimeInMillis()
+    			+ ":0"
+    			+ ":0"
+    			+ ":0"
+    			+ ":0"
+    			+ ":0"
+    			+ ":0"
+    			+ ":" + string
+    			+ "\n");
+    	} catch (IOException e) {
+    		Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
+    	}
+    }
+
     
     public float getResolution() {
     	return mAccellSensor.getResolution();
@@ -188,5 +213,9 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	 
     public void setFilter(StepDetection filter) {
     	detector = filter;
+    }
+    
+    public void setLogging(boolean logging) {
+    	this.logging = logging;
     }
 }
