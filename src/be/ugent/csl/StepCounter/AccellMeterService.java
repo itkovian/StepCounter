@@ -160,7 +160,7 @@ public class AccellMeterService extends Service implements SensorEventListener  
 			    	       + ":");
     	try {
     		if (logging) {
-    			accellLog.write( event.timestamp 
+    			accellLog.write( Calendar.getInstance().getTimeInMillis() // TODO event.timestamp 
     					+ ":" + event.values[0]
     					+ ":" + event.values[1]
 			    	    + ":" + event.values[2]
