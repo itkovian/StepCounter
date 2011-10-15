@@ -150,46 +150,45 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	if(detector != null) {
     		detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
     	}
-    	Log.i(TAG, "SENSORVALUES: " + event.timestamp 
-					       + ":" + event.values[0]
-			    		   + ":" + event.values[1]
-			    	       + ":" + event.values[2]
-			    	       + ":" + linear_acceleration[0]
-			    	       + ":" + linear_acceleration[1]
-			    	       + ":" + linear_acceleration[2]
-			    	       + ":");
-    	try {
-    		if (logging) {
-    			accellLog.write( Calendar.getInstance().getTimeInMillis() // TODO event.timestamp 
-    					+ ":" + event.values[0]
-    					+ ":" + event.values[1]
-			    	    + ":" + event.values[2]
-			    	    + ":" + linear_acceleration[0]
-			    	    + ":" + linear_acceleration[1]
-			    	    + ":" + linear_acceleration[2]
-			    	    + ":"
-			    	    + "\n");
-    		}
-		} catch (IOException e) {
-			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
-		}
-			
+
+    	log(Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
+    			event.values, linear_acceleration);
 	}
     
-    public void logString(String string) {
-    	try {
-    	accellLog.write( Calendar.getInstance().getTimeInMillis()
-    			+ ":0"
-    			+ ":0"
-    			+ ":0"
-    			+ ":0"
-    			+ ":0"
-    			+ ":0"
-    			+ ":" + string
-    			+ "\n");
-    	} catch (IOException e) {
-    		Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
+    private void log(long timestamp, float[] rawValues, double[] linear) {
+    	log(timestamp, rawValues, linear, "", false);
+    }
+
+    // Log a message to the Log, and potentially to the log file if writing to it is enabled
+    // If force is true, write anyway (for logging messages, mainly)
+    private void log(long timestamp, float[] rawValues, double[] linear, String message, boolean force) {
+    	// TODO: StringBuilder?
+    	String logString = timestamp
+    					+ ":" + rawValues[0]
+    					+ ":" + rawValues[1]
+			    	    + ":" + rawValues[2]
+			    	    + ":" + linear[0]
+			    	    + ":" + linear[1]
+			    	    + ":" + linear[2]
+			    	    + ":" + message
+			    	    + "\n";
+
+    	//Log.i(TAG, "SENSORVALUES: " + logString);
+    	
+    	if (logging || force) {
+    		try {   		
+    			accellLog.write(logString);
+    		} catch (IOException e) {
+    			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
+    		}
     	}
+    }
+    
+    public void logString(String string) {
+    	log(Calendar.getInstance().getTimeInMillis(),
+    			new float[]  { 0, 0, 0 },
+    			new double[] { 0, 0, 0 },
+    			string, true);
     }
 
     
