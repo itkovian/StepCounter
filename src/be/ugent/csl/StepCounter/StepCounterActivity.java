@@ -113,7 +113,7 @@ public class StepCounterActivity extends Activity {
         
         /* ============================================================== */
         /* Drop down menu */
-        filterSpinner = (Spinner) findViewById(R.id.filterList);
+        /*filterSpinner = (Spinner) findViewById(R.id.filterList);
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this, R.array.filter_array, android.R.layout.simple_spinner_item);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filterSpinner.setAdapter(filterAdapter);
@@ -142,7 +142,7 @@ public class StepCounterActivity extends Activity {
 				// TODO Auto-generated method stub	
 			}
         	
-        });
+        });*/
         
         
        	Intent i = new Intent(this, AccellMeterService.class);

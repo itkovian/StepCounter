@@ -142,34 +142,23 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
     	gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
-    	double [] linear_acceleration = new double[3];
-    	linear_acceleration[0] = event.values[0] - gravity[0];
-    	linear_acceleration[1] = event.values[1] - gravity[1];
-    	linear_acceleration[2] = event.values[2] - gravity[2];
-
-    	if(detector != null) {
-    		detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
-    	}
-
-    	log(Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
-    			event.values, linear_acceleration);
+    	log(Calendar.getInstance().getTimeInMillis(), event.timestamp,
+    			event.values);//, linear_acceleration);
 	}
     
-    private void log(long timestamp, float[] rawValues, double[] linear) {
-    	log(timestamp, rawValues, linear, "", false);
+    private void log(long millis, long timestamp, float[] rawValues) {
+    	log(millis, timestamp, rawValues, "", false);
     }
 
     // Log a message to the Log, and potentially to the log file if writing to it is enabled
     // If force is true, write anyway (for logging messages, mainly)
-    private void log(long timestamp, float[] rawValues, double[] linear, String message, boolean force) {
+    private void log(long millis, long timestamp, float[] rawValues, String message, boolean force) {
     	// TODO: StringBuilder?
     	String logString = timestamp
+    			        + ":" + millis
     					+ ":" + rawValues[0]
     					+ ":" + rawValues[1]
 			    	    + ":" + rawValues[2]
-			    	    + ":" + linear[0]
-			    	    + ":" + linear[1]
-			    	    + ":" + linear[2]
 			    	    + ":" + message
 			    	    + "\n";
 
@@ -186,8 +175,9 @@ public class AccellMeterService extends Service implements SensorEventListener  
     
     public void logString(String string) {
     	log(Calendar.getInstance().getTimeInMillis(),
+    			0,
     			new float[]  { 0, 0, 0 },
-    			new double[] { 0, 0, 0 },
+    			//new double[] { 0, 0, 0 },
     			string, true);
     }
 

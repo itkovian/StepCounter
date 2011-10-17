@@ -37,9 +37,9 @@
                  android:paddingLeft="10dp"
                  android:paddingRight="10dp" />
     </LinearLayout>
-    <Spinner android:id="@+id/filterList"
+    <!-- <Spinner android:id="@+id/filterList"
               android:layout_width="fill_parent"
-              android:layout_height="wrap_content" />
+              android:layout_height="wrap_content" /> -->
     <!--             android:prompt="@string/filter_prompt" /> -->
     <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
 	    <EditText android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/messageData">
