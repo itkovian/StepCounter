@@ -178,7 +178,7 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	if (logging || force) {
     		try {   		
     			accellLog.write(logString);
-    		} catch (IOException e) {
+    		} catch (Exception e) { // Null pointer exception, or IOException
     			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
     		}
     	}
