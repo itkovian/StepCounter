@@ -30,11 +30,6 @@ import android.widget.Toast;
  * @author Andy Georges
  */
 public class StepCounterActivity extends Activity {
-    
-	/* Various :-) */
-	private final String TAG = "be.ugent.csl.StepCounter.StepCounterActivity";
-	private final String accellLogFileName = "accelDataLog";
-	
 	/* UI items */
 	private Button closeButton;
 	private Button logButton;
@@ -44,16 +39,17 @@ public class StepCounterActivity extends Activity {
 	
 	/* Service interaction */
 	private boolean accellMeterServiceBound = false;
-	private AccellMeterService accellMeterService;
+
 	private ServiceConnection accellMeterServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			accellMeterService = ((AccellMeterService.LocalBinder)service).getService();
-			Log.i(TAG, "Service connection established");
+			InteractionModelSingleton.get().setService(
+					((AccellMeterService.LocalBinder)service).getService());
+			Log.i(InteractionModelSingleton.TAG, "Service connection established");
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {
-			accellMeterService = null;			
-			Log.i(TAG, "Service connection removed");
+			InteractionModelSingleton.get().setService(null);			
+			Log.i(InteractionModelSingleton.TAG, "Service connection removed");
 		}
 		
 	};
@@ -88,16 +84,8 @@ public class StepCounterActivity extends Activity {
 
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
-				String text = null;
-				switch(progress) {
-				case 0: text = "FASTEST"; break;
-				case 1: text = "GAME"; break;
-				case 2: text = "UI"; break;
-				case 3: text = "NORMAL"; break;
-				}
-				sampleRateText.setText(text);
-				// FIXME: there seems to be an error here when tilting the phone.
-				accellMeterService.setAccuracy(progress);	
+				InteractionModelSingleton.get().setRate(progress);
+				sampleRateText.setText(InteractionModelSingleton.get().rateAsString());
 			}
 
 			public void onStartTrackingTouch(SeekBar seekBar) {
@@ -113,6 +101,7 @@ public class StepCounterActivity extends Activity {
         
         /* ============================================================== */
         /* Drop down menu */
+        /*
         filterSpinner = (Spinner) findViewById(R.id.filterList);
         ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this, R.array.filter_array, android.R.layout.simple_spinner_item);
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -143,19 +132,19 @@ public class StepCounterActivity extends Activity {
 			}
         	
         });
+        */
         
         
        	Intent i = new Intent(this, AccellMeterService.class);
-       	i.putExtra("AccellLogFileName", accellLogFileName);
        	/* first we bind to the service to be able to talk to it through the local binding */
        	accellMeterServiceBound = bindService(i, accellMeterServiceConnection, BIND_AUTO_CREATE);
-       	Log.i(TAG, "AccelMeterService bound");
+       	Log.i(InteractionModelSingleton.TAG, "AccelMeterService bound");
        	
        	/* we also need to start the service explicitly, with the same intent to make sure
        	 * the service keeps running even when the activity loses focus. 
        	 */
        	startService(i);	  
-       	Log.i(TAG, "AccellMeterService started");
+       	Log.i(InteractionModelSingleton.TAG, "AccellMeterService started");
         
        	/* The log button */
        	logButton = (Button) findViewById(R.id.addMessageButton);
@@ -165,17 +154,17 @@ public class StepCounterActivity extends Activity {
        	logButton.setOnClickListener(new OnClickListener() {
        		@Override
        		public void onClick(View v) {
-       			accellMeterService.logString(data.getText().toString());
+       			InteractionModelSingleton.get().logString(data.getText().toString());
        		}
        	});
 
        	
-       	// TODO: MVC
        	CheckBox logData = (CheckBox) findViewById(R.id.logData);
+       	logData.setChecked(InteractionModelSingleton.get().isLogging());
        	logData.setOnCheckedChangeListener(new OnCheckedChangeListener() {
        		@Override
        		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-       			accellMeterService.setLogging(isChecked);
+       			InteractionModelSingleton.get().setLogging(isChecked);
        		}
        	});
 
