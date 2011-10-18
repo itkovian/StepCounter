@@ -39,18 +39,13 @@ public class AccellMeterService extends Service implements SensorEventListener  
 	/* Sensor data structures */
 	private double [] gravity = new double[3]; 
 	
-	/* Logging the measurements */
-	private BufferedWriter accellLog = null;
-	
 	/* Global fugly shizzle */
 	private boolean started = false;
 	private boolean registered = false;
 	
 	/* Step detection */
 	private StepDetection detector = null;
-	
-	/* Log sensor values to the file */
-	private boolean logging = false;
+
 	
 	@Override 
 	public void onCreate() {
@@ -71,21 +66,8 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	synchronized(this) {
     		if(started) {
     			return START_STICKY;
-    		}
-    	}
-    	
-       	File externalStorage = Environment.getExternalStorageDirectory();
-       	String accellLogFileName = intent.getStringExtra("AccellLogFileName");
-       	
-       	try {
-       		accellLog = new BufferedWriter(new FileWriter(new File(externalStorage, accellLogFileName)));
-       	}
-       	catch(IOException e) {
-       		// TOO BAD, service will not log to a file.
-       		Log.e(TAG, "IOException when opening a writer to " + accellLogFileName, e);
-       	}
-       	
-    	synchronized(this) {
+    		}       	
+
     		registered = mSensorManager.registerListener(this, mAccellSensor, SensorManager.SENSOR_DELAY_FASTEST);
         	started = true;
     	}
@@ -109,13 +91,8 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	mSensorManager.unregisterListener(this, mAccellSensor);
     	Toast.makeText(this, "AccellMeterService destroyed", Toast.LENGTH_LONG).show();
     	
-    	try {
-    		accellLog.flush();
-    		accellLog.close();
-    	}
-    	catch(IOException e) {
-    		Log.e(TAG, "IOException when flushing the writer", e);
-    	}
+    	InteractionModelSingleton.get().closeFile();
+    	
     	super.onDestroy();
 
     	Log.i(TAG, "AccellMeterService destroyed");
@@ -151,45 +128,11 @@ public class AccellMeterService extends Service implements SensorEventListener  
     		detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
     	}
 
-    	log(Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
-    			event.values, linear_acceleration);
+    	InteractionModelSingleton.get().log(
+    			Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
+    			event.values, linear_acceleration
+    	);
 	}
-    
-    private void log(long timestamp, float[] rawValues, double[] linear) {
-    	log(timestamp, rawValues, linear, "", false);
-    }
-
-    // Log a message to the Log, and potentially to the log file if writing to it is enabled
-    // If force is true, write anyway (for logging messages, mainly)
-    private void log(long timestamp, float[] rawValues, double[] linear, String message, boolean force) {
-    	// TODO: StringBuilder?
-    	String logString = timestamp
-    					+ ":" + rawValues[0]
-    					+ ":" + rawValues[1]
-			    	    + ":" + rawValues[2]
-			    	    + ":" + linear[0]
-			    	    + ":" + linear[1]
-			    	    + ":" + linear[2]
-			    	    + ":" + message
-			    	    + "\n";
-
-    	//Log.i(TAG, "SENSORVALUES: " + logString);
-    	
-    	if (logging || force) {
-    		try {   		
-    			accellLog.write(logString);
-    		} catch (Exception e) { // Null pointer exception, or IOException
-    			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
-    		}
-    	}
-    }
-    
-    public void logString(String string) {
-    	log(Calendar.getInstance().getTimeInMillis(),
-    			new float[]  { 0, 0, 0 },
-    			new double[] { 0, 0, 0 },
-    			string, true);
-    }
 
     
     public float getResolution() {
@@ -213,9 +156,5 @@ public class AccellMeterService extends Service implements SensorEventListener  
     public void setFilter(StepDetection filter) {
     	detector = filter;
     }
-    
-    public void setLogging(boolean logging) {
-    	this.logging = logging;
-    	logString("Changed logging data to " + logging);
-    }
+
 }
