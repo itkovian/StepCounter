@@ -43,6 +43,10 @@ public class InteractionModelSingleton {
 	private BufferedWriter accellLog = null;
 	// We can close the file while the activity is active, and reopen it afterwards to _append_ instead of overwrite
 	private boolean shouldAppend = false;
+	
+	public void resetAppending() {
+		shouldAppend = false;
+	}
 
 	private boolean openedFile() {
 		return accellLog != null;

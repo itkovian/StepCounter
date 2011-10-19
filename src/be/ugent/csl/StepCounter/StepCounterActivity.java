@@ -170,7 +170,21 @@ public class StepCounterActivity extends Activity {
 
     }
     
-    public void onDestroy() {
+
+    
+    /*
+     * If the application is no longer user-visible, really close the file.
+     * That way, we can overwrite it whenever the user 'enters' the activity.
+     */
+    @Override
+	public void onBackPressed() {
+    	InteractionModelSingleton.get().resetAppending();
+		finish();
+	}
+
+
+
+	public void onDestroy() {
     	/* take down the service */
     	if(accellMeterServiceBound) {
     		unbindService(accellMeterServiceConnection);
