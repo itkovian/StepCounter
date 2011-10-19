@@ -41,19 +41,22 @@ public class InteractionModelSingleton {
 	}
 	
 	private BufferedWriter accellLog = null;
+	// We can close the file while the activity is active, and reopen it afterwards to _append_ instead of overwrite
+	private boolean shouldAppend = false;
 
 	private boolean openedFile() {
 		return accellLog != null;
 	}
 	
-	// Try to ensure that the file is opened, returns succes
+	// Try to ensure that the file is opened, returns success
 	private boolean openFile() {
 		if (openedFile())
 			return true;
        	File externalStorage = Environment.getExternalStorageDirectory();
        	
        	try {
-       		accellLog = new BufferedWriter(new FileWriter(new File(externalStorage, accellLogFileName)));
+       		accellLog = new BufferedWriter(new FileWriter(new File(externalStorage, accellLogFileName), shouldAppend));
+       		shouldAppend = true;
        		return true;
        	}
        	catch(IOException e) {
