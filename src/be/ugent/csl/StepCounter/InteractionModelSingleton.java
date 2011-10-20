@@ -71,6 +71,15 @@ public class InteractionModelSingleton {
 		return logLines;
 	}
 	
+	// Always append to the current file, _except_ when we forcefully clear it!
+	private boolean shouldAppend = true;
+	
+	public void clearFile() {
+		closeFile();
+		shouldAppend = false;
+		openFile();
+	}
+	
 	// Try to ensure that the file is opened, returns success
 	private boolean openFile() {
 		if (openedFile())
@@ -80,7 +89,8 @@ public class InteractionModelSingleton {
        	try {
        		accelFile = new File(externalStorage, accellLogFileName);
        		countLines();
-       		accellLog = new BufferedWriter(new FileWriter(accelFile, true));
+       		accellLog = new BufferedWriter(new FileWriter(accelFile, shouldAppend));
+       		shouldAppend = true;
        		return true;
        	}
        	catch(IOException e) {

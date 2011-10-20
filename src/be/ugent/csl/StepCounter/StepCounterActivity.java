@@ -202,6 +202,16 @@ public class StepCounterActivity extends Activity {
 
        	logTask = new UpdateLogTask();
        	logTask.execute();
+       	
+       	Button clearButton = (Button) findViewById(R.id.clear);
+       	clearButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				InteractionModelSingleton.get().clearFile();
+				updateLogCount();
+			}
+		});
     }
 
 	public void onDestroy() {
