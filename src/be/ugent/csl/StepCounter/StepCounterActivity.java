@@ -1,10 +1,14 @@
 package be.ugent.csl.StepCounter;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import be.ugent.csl.StepCounter.R;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -36,7 +40,29 @@ public class StepCounterActivity extends Activity {
 	private SeekBar rateMultiplier;
 	private TextView sampleRateText;
 	private Spinner filterSpinner;
+	private TextView logLinesText;
 	
+	private class UpdateLogTask extends AsyncTask<Void, Integer, Void> {
+		@Override
+		protected Void doInBackground(Void... unused) {
+			while (!isCancelled()) {
+				try {
+					Thread.sleep(500);
+				} catch (Exception e) {
+					Log.e(InteractionModelSingleton.TAG, e.getMessage());
+				}
+				publishProgress(InteractionModelSingleton.get().logFileLines());
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			updateLogCount();
+		}
+	}
+	UpdateLogTask logTask;
+
 	/* Service interaction */
 	private boolean accellMeterServiceBound = false;
 
@@ -54,6 +80,9 @@ public class StepCounterActivity extends Activity {
 		
 	};
 	
+	public void updateLogCount() {
+		logLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
+	}
 	
     /** Called when the activity is first created. */
     @Override
@@ -151,10 +180,13 @@ public class StepCounterActivity extends Activity {
        	
        	final EditText data = (EditText) findViewById(R.id.messageData);
 
+       	logLinesText = (TextView) findViewById(R.id.linesCount);
+       	
        	logButton.setOnClickListener(new OnClickListener() {
        		@Override
        		public void onClick(View v) {
        			InteractionModelSingleton.get().logString(data.getText().toString());
+       			updateLogCount();
        		}
        	});
 
@@ -168,30 +200,17 @@ public class StepCounterActivity extends Activity {
        		}
        	});
 
+       	logTask = new UpdateLogTask();
+       	logTask.execute();
     }
-    
-
-    
-    /*
-     * If the application is no longer user-visible, really close the file.
-     * That way, we can overwrite it whenever the user 'enters' the activity.
-     */
-    @Override
-	public void onBackPressed() {
-    	InteractionModelSingleton.get().resetAppending();
-		finish();
-	}
-
-
 
 	public void onDestroy() {
+		logTask.cancel(true);
     	/* take down the service */
     	if(accellMeterServiceBound) {
     		unbindService(accellMeterServiceConnection);
     	}
     	stopService(new Intent(this, AccellMeterService.class));
     	super.onDestroy();
-    }
-        
-    
+    }   
 }
