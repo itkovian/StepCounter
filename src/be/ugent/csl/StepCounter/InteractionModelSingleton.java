@@ -88,7 +88,10 @@ public class InteractionModelSingleton {
 
        	try {
        		accelFile = new File(externalStorage, accellLogFileName);
-       		countLines();
+       		if (shouldAppend)
+       			countLines();
+       		else
+       			logLines = 0;
        		accellLog = new BufferedWriter(new FileWriter(accelFile, shouldAppend));
        		shouldAppend = true;
        		return true;
