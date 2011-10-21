@@ -127,6 +127,7 @@ public class StepCounterActivity extends Activity {
         	
         	
         });
+        rateMultiplier.setProgress(InteractionModelSingleton.get().getRate());
         
         /* ============================================================== */
         /* Drop down menu */
