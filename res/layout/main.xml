@@ -48,6 +48,13 @@
 		<Button android:text="Add message" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/addMessageButton"></Button>
    </LinearLayout>
    <CheckBox android:id="@+id/logData" android:layout_width="wrap_content" android:text="Log sensor data to file" android:layout_height="wrap_content"></CheckBox>
+   <LinearLayout android:layout_width="fill_parent" android:paddingBottom="5dp" android:paddingTop="5dp" android:orientation="horizontal" android:paddingLeft="30dp" android:layout_height="wrap_content">
+   		<Button android:id="@+id/clear" 
+            android:text="Clear file" 
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/TextView02" android:text="Lines in file:" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingRight="10dp"></TextView>
+        <TextView android:id="@+id/linesCount" android:text="-1" android:layout_height="wrap_content" android:layout_width="wrap_content"></TextView>
+   </LinearLayout>
     
     <Button android:id="@+id/close" 
             android:text="Quit" 

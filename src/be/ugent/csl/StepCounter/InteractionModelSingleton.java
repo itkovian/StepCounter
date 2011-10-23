@@ -1,7 +1,9 @@
 package be.ugent.csl.StepCounter;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
@@ -40,31 +42,71 @@ public class InteractionModelSingleton {
 		logString("Changed logging data to " + logging);
 	}
 	
+	private File accelFile = null;
 	private BufferedWriter accellLog = null;
 
 	private boolean openedFile() {
 		return accellLog != null;
 	}
 	
-	// Try to ensure that the file is opened, returns succes
+	// Return the number of lines in the logfile
+	private int logLines = -1;
+	private void countLines() {
+		if (accelFile == null) {
+			logLines = -1;
+			return;
+		}
+		
+		try {
+			BufferedReader r = new BufferedReader(new FileReader(accelFile));
+			logLines = 0;
+			while (r.readLine() != null)
+				logLines++;
+			r.close();
+		} catch (IOException e) {
+			logLines = -1;
+		}
+	}
+	public int logFileLines() {
+		return logLines;
+	}
+	
+	// Always append to the current file, _except_ when we forcefully clear it!
+	private boolean shouldAppend = true;
+	
+	public void clearFile() {
+		closeFile();
+		shouldAppend = false;
+		openFile();
+	}
+	
+	// Try to ensure that the file is opened, returns success
 	private boolean openFile() {
 		if (openedFile())
 			return true;
        	File externalStorage = Environment.getExternalStorageDirectory();
-       	
+
        	try {
-       		accellLog = new BufferedWriter(new FileWriter(new File(externalStorage, accellLogFileName)));
+       		accelFile = new File(externalStorage, accellLogFileName);
+       		if (shouldAppend)
+       			countLines();
+       		else
+       			logLines = 0;
+       		accellLog = new BufferedWriter(new FileWriter(accelFile, shouldAppend));
+       		shouldAppend = true;
        		return true;
        	}
        	catch(IOException e) {
        		// TOO BAD, service will not log to a file.
        		Log.e(TAG, "IOException when opening a writer to " + accellLogFileName, e);
        	}
+
        	return false;
 	}
 
 	public void closeFile() {
 		if ( openedFile() ) {
+			logLines = -1;
 			try {
 				accellLog.flush();
 				accellLog.close();
@@ -74,6 +116,7 @@ public class InteractionModelSingleton {
 			}
 		}
 		accellLog = null;
+		accelFile = null;
 	}
 
 	/* Logging the measurements */
@@ -100,6 +143,7 @@ public class InteractionModelSingleton {
     	if (logging || force) {
     		try {
     			accellLog.write(logString);
+    			logLines++;
     		} catch (IOException e) {
     			Log.e(TAG, "Cannot write to the log for storing the sensor values", e);
     		}
@@ -135,6 +179,9 @@ public class InteractionModelSingleton {
     public void setRate(int rate) {
     	this.rate = rate;
     }
+    public int getRate() {
+		return rate;
+	}
     
     private AccellMeterService accellMeterService = null;
     public void setService(AccellMeterService s) {
