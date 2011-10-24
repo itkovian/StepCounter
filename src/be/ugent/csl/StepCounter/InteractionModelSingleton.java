@@ -123,15 +123,16 @@ public class InteractionModelSingleton {
 	
     // Log a message to the Log, and potentially to the log file if writing to it is enabled
     // If force is true, write anyway (for logging messages, mainly)
-    private void log(long timestamp, float[] rawValues, double[] linear, String message, boolean force) {
+    private void log(long eventTimestamp, long timestamp, float[] rawValues, double[] linear, String message, boolean force) {
     	// TODO: StringBuilder?
-    	String logString = timestamp
+    	String logString = eventTimestamp
+    			        + ":" + timestamp
     					+ ":" + rawValues[0]
     					+ ":" + rawValues[1]
 			    	    + ":" + rawValues[2]
-			    	    + ":" + linear[0]
-			    	    + ":" + linear[1]
-			    	    + ":" + linear[2]
+			    	    //+ ":" + linear[0]
+			    	    //+ ":" + linear[1]
+			    	    //+ ":" + linear[2]
 			    	    + ":" + message
 			    	    + "\n";
 
@@ -150,12 +151,12 @@ public class InteractionModelSingleton {
     	}
     }
 
-	public void log(long timestamp, float[] rawValues, double[] linear) {
-    	log(timestamp, rawValues, linear, "", false);
+	public void log(long eventTimestamp, long timestamp, float[] rawValues, double[] linear) {
+    	log(eventTimestamp, timestamp, rawValues, linear, "", false);
     }
     
     public void logString(String string) {
-    	log(Calendar.getInstance().getTimeInMillis(),
+    	log(0, Calendar.getInstance().getTimeInMillis(),
     			new float[]  { 0, 0, 0 },
     			new double[] { 0, 0, 0 },
     			string, true);

@@ -124,11 +124,12 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	linear_acceleration[1] = event.values[1] - gravity[1];
     	linear_acceleration[2] = event.values[2] - gravity[2];
 
-    	if(detector != null) {
-    		detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
-    	}
+    	//if(detector != null) {
+    	//	detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
+    	//}
 
     	InteractionModelSingleton.get().log(
+    			event.timestamp,
     			Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
     			event.values, linear_acceleration
     	);

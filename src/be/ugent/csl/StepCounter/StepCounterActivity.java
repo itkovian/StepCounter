@@ -39,7 +39,7 @@ public class StepCounterActivity extends Activity {
 	private Button logButton;
 	private SeekBar rateMultiplier;
 	private TextView sampleRateText;
-	private Spinner filterSpinner;
+	//private Spinner filterSpinner;
 	private TextView logLinesText;
 	
 	private class UpdateLogTask extends AsyncTask<Void, Integer, Void> {
