@@ -92,7 +92,9 @@ public class StepCounterActivity extends Activity {
 	 * called by the UpdateLogTask.onProgressUpdate().
 	 */
 	public void updateLogCount() {
-		logLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
+		if(logLinesText != null) {
+			logLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
+		}
 	}
 	
 	
@@ -113,55 +115,55 @@ public class StepCounterActivity extends Activity {
         /* ============================================================== */
         /* buttons */
         /* the closing button */
-        closeButton = (Button) findViewById(R.id.close);
+        closeButton = null; /* (Button) findViewById(R.id.close); 
         closeButton.setOnTouchListener(new OnTouchListener() {
           public boolean onTouch(View v, MotionEvent e) {
             finish();
             return true;
           }
-        });
+        });*/
        	/* The log button */
-       	logButton = (Button) findViewById(R.id.addMessageButton);
+       	logButton = null; /*(Button) findViewById(R.id.addMessageButton);
        	logButton.setOnClickListener(new OnClickListener() {
        		@Override
        		public void onClick(View v) {
        			InteractionModelSingleton.get().logString(data.getText().toString());
        			updateLogCount();
        		}
-       	});
+       	});*/
        	/* The clear-the-trace-file button */
-       	clearButton = (Button) findViewById(R.id.clear);
+       	clearButton = null; /* (Button) findViewById(R.id.clear);
        	clearButton.setOnClickListener(new OnClickListener() {	
 			@Override
 			public void onClick(View v) {
 				InteractionModelSingleton.get().clearFile();
 				updateLogCount();
 			}
-		});
+		});*/
 
         /* ============================================================== */
        	/* Checkboxes */
-       	logData = (CheckBox) findViewById(R.id.logData);
+       	logData = null; /*(CheckBox) findViewById(R.id.logData);
        	logData.setChecked(InteractionModelSingleton.get().isLogging());
        	logData.setOnCheckedChangeListener(new OnCheckedChangeListener() {
        		@Override
        		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
        			InteractionModelSingleton.get().setLogging(isChecked);
        		}
-       	});
+       	});*/
 
         /* ============================================================== */
         /* Text Views */
-        sampleRateText = (TextView) findViewById(R.id.sampleRateText);
-        logLinesText = (TextView) findViewById(R.id.linesCount);
+        sampleRateText = null; /*(TextView) findViewById(R.id.sampleRateText);*/
+        logLinesText = null; /*(TextView) findViewById(R.id.linesCount);*/
        	
         /* ============================================================== */
         /* Input field for the message */
-        data = (EditText) findViewById(R.id.messageData);
+        data = null; /* (EditText) findViewById(R.id.messageData); */
         
         /* ============================================================== */
         /* seekbar */
-        rateMultiplier = (SeekBar)this.findViewById(R.id.rateMultiplier);
+        rateMultiplier = null; /*(SeekBar)this.findViewById(R.id.rateMultiplier);
         rateMultiplier.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			public void onProgressChanged(SeekBar seekBar, int progress,
@@ -180,7 +182,7 @@ public class StepCounterActivity extends Activity {
         	
         	
         });
-        rateMultiplier.setProgress(InteractionModelSingleton.get().getRate());
+        rateMultiplier.setProgress(InteractionModelSingleton.get().getRate());*/
 
       	/* This starts the update thread to asynchronously update the
        	 * UI fields when changes occur. You need not touch this code. 
