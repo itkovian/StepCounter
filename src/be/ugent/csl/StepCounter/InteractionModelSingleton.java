@@ -216,6 +216,9 @@ public class InteractionModelSingleton {
     }
     public void setRate(int rate) {
     	this.rate = rate;
+    	if (accellMeterService != null) {
+    		accellMeterService.setAccuracy(rate);
+    	}
     }
     public int getRate() {
     	return rate;
