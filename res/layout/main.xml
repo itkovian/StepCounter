@@ -3,60 +3,18 @@
               android:layout_width="fill_parent" 
               android:layout_height="fill_parent"
               android:orientation="vertical" android:weightSum="1">
-    <LinearLayout android:orientation="horizontal"
-                  android:paddingLeft="30dp"
-                  android:paddingTop="5dp"
-                  android:paddingBottom="5dp"
-                  android:layout_height="30dp"
-                  android:layout_width="fill_parent">
-    	<TextView android:id="@+id/test"
-        	      android:layout_width="wrap_content"
-    	          android:layout_height="wrap_content"
-        	      android:text="Number of steps:"
-        	      android:paddingRight="10dp" />
-    	<TextView android:id="@+id/counter"
-        	      android:layout_width="wrap_content"
-            	  android:layout_height="wrap_content"
-           	   android:text="0" />
-    </LinearLayout>
-    <LinearLayout android:layout_width="fill_parent" 
-                  android:layout_height="wrap_content" 
-                  android:paddingRight="30dp" 
-                  android:paddingLeft="30dp" 
-                  android:layout_weight="0.04" 
-                  android:orientation="vertical">
-        <TextView android:id="@+id/sampleRateText" 
-                  android:layout_height="wrap_content" 
-                  android:layout_width="wrap_content" 
-                  android:text="NORMAL"></TextView>
-        <SeekBar android:id="@+id/rateMultiplier"
-        		 android:layout_width="fill_parent" 
-                 android:progress="1" 
-                 android:layout_height="wrap_content" 
-                 android:max="3" 
-                 android:paddingLeft="10dp"
-                 android:paddingRight="10dp" />
-    </LinearLayout>
-    <!-- <Spinner android:id="@+id/filterList"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content" /> -->
-    <!--             android:prompt="@string/filter_prompt" /> -->
-    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/linearLayout1">
-	    <EditText android:layout_weight="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/messageData">
-	    	<requestFocus></requestFocus>
-        </EditText>
-		<Button android:text="Add message" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/addMessageButton"></Button>
-   </LinearLayout>
-   <CheckBox android:id="@+id/logData" android:layout_width="wrap_content" android:text="Log sensor data to file" android:layout_height="wrap_content"></CheckBox>
-   <LinearLayout android:layout_width="fill_parent" android:paddingBottom="5dp" android:paddingTop="5dp" android:orientation="horizontal" android:paddingLeft="30dp" android:layout_height="wrap_content">
-   		<Button android:id="@+id/clear" 
-            android:text="Clear file" 
-            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-        <TextView android:id="@+id/TextView02" android:text="Lines in file:" android:layout_height="wrap_content" android:layout_width="wrap_content" android:paddingRight="10dp"></TextView>
-        <TextView android:id="@+id/linesCount" android:text="-1" android:layout_height="wrap_content" android:layout_width="wrap_content"></TextView>
-   </LinearLayout>
-    
-    <Button android:id="@+id/close" 
+    <!--  Opgave 1: a. Definieer een layout (naar eigen keuze) zodat je alle UI 
+                       elementen netjes kunt voorstellen en zodat de samenhorende
+                       elementen bij elkaar staan.
+                    b. Plaats de verschillende widgets met de geschikte padding,
+                       etc. in de verschillende containers. Zorg ervoor dat je
+                       de IDs die je hier kiest, ook gebruikt in Opgave 2, zodat 
+                       de verschillende widgets de applicatie op de correcte 
+                       manier kunnen aansturen. -->
+    <!-- De onderstaande button mag je naar eigen goeddunken plaatsen in een
+         (andere) container, zorg er gewoon voor dat ze zichtbaar blijft zodat
+         je de applicatie netjes kunt afsluiten als je Opgave 2 hebt gemaakt. -->                       
+    <Button android:id="@+id/quit" 
             android:text="Quit" 
             android:layout_width="wrap_content" 
             android:layout_height="wrap_content" />

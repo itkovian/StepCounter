@@ -41,26 +41,28 @@ public class StepCounterActivity extends Activity {
 	 */
 	
 	/* buttons */
-	private Button closeButton;
+	private Button quitButton;
 	private Button logButton;
 	private Button clearButton;
 	
 	/* checkboxes */
-    private CheckBox logData;
+    private CheckBox logDataCheckBox;
     
 	/* seekbar for the logging rate */
-	private SeekBar rateMultiplier;
+	private SeekBar rateMultiplierBar;
 	
 	/* text fields */
 	private TextView sampleRateText;
-	private TextView logLinesText;
+	private TextView traceLinesText;
 	
 	/* message input field */
-	private EditText data;
+	private EditText messageEditText;
 	
 	/* ================================================================== */
 	/* Updater for the line count field showing how many lines 
-	 * were found in the trace file.
+	 * were found in the trace file. This allows the UI to be updated 
+	 * asynchronously, which improves responsiveness and is less 
+	 * error-prone.
 	 */
 	UpdateLogTask logTask;
 	
@@ -89,11 +91,13 @@ public class StepCounterActivity extends Activity {
 	
 
 	/* Interaction with the UI. This function updates the value shown in the UI when
-	 * called by the UpdateLogTask.onProgressUpdate().
+	 * called by the UpdateLogTask.onProgressUpdate(). We need to make sure we do not
+	 * accidentally change the information displayed by this field if it does not 
+	 * exist yet.
 	 */
 	public void updateLogCount() {
-		if(logLinesText != null) {
-			logLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
+		if(traceLinesText != null) {
+			traceLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
 		}
 	}
 	
@@ -113,76 +117,40 @@ public class StepCounterActivity extends Activity {
         setContentView(R.layout.main);
         
         /* ============================================================== */
+        /* Opgave 2: a. Geef deze widgets een gepaste waarde door te refereren
+         *              naar de juiste ID's uit de layout.
+         *           b. Zorg ervoor dat de juiste luisteraars gedefinieerd
+         *              worden en dat je ook de passende stappen onderneemt
+         *              opdat de UI consistent blijft en het resultaat van 
+         *              actie weergegeven wordt. Je kunt hiervoor anonieme 
+         *              objecten gebruiken waarvoor je de juiste methoden 
+         *              implementeert.
+         */
+        
         /* buttons */
         /* the closing button */
-        closeButton = null; /* (Button) findViewById(R.id.close); 
-        closeButton.setOnTouchListener(new OnTouchListener() {
-          public boolean onTouch(View v, MotionEvent e) {
-            finish();
-            return true;
-          }
-        });*/
+        quitButton = null; // FIXME 
        	/* The log button */
-       	logButton = null; /*(Button) findViewById(R.id.addMessageButton);
-       	logButton.setOnClickListener(new OnClickListener() {
-       		@Override
-       		public void onClick(View v) {
-       			InteractionModelSingleton.get().logString(data.getText().toString());
-       			updateLogCount();
-       		}
-       	});*/
+       	logButton = null; //FIXME
        	/* The clear-the-trace-file button */
-       	clearButton = null; /* (Button) findViewById(R.id.clear);
-       	clearButton.setOnClickListener(new OnClickListener() {	
-			@Override
-			public void onClick(View v) {
-				InteractionModelSingleton.get().clearFile();
-				updateLogCount();
-			}
-		});*/
+       	clearButton = null; //FIXME
 
         /* ============================================================== */
        	/* Checkboxes */
-       	logData = null; /*(CheckBox) findViewById(R.id.logData);
-       	logData.setChecked(InteractionModelSingleton.get().isLogging());
-       	logData.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-       		@Override
-       		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-       			InteractionModelSingleton.get().setLogging(isChecked);
-       		}
-       	});*/
+       	logDataCheckBox = null; //FIXME
 
         /* ============================================================== */
         /* Text Views */
-        sampleRateText = null; /*(TextView) findViewById(R.id.sampleRateText);*/
-        logLinesText = null; /*(TextView) findViewById(R.id.linesCount);*/
+        sampleRateText = null; //FIXME
+        traceLinesText = null; //FIXME
        	
         /* ============================================================== */
         /* Input field for the message */
-        data = null; /* (EditText) findViewById(R.id.messageData); */
+        messageEditText = null; //FIXME
         
         /* ============================================================== */
         /* seekbar */
-        rateMultiplier = null; /*(SeekBar)this.findViewById(R.id.rateMultiplier);
-        rateMultiplier.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				InteractionModelSingleton.get().setRate(progress);
-				sampleRateText.setText(InteractionModelSingleton.get().rateAsString());
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub	
-			}
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub	
-			}
-        	
-        	
-        });
-        rateMultiplier.setProgress(InteractionModelSingleton.get().getRate());*/
+        rateMultiplierBar = null; //FIXME
 
       	/* This starts the update thread to asynchronously update the
        	 * UI fields when changes occur. You need not touch this code. 
