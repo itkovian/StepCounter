@@ -21,19 +21,47 @@ import android.util.Log;
  * @author Bart Coppens
  */
 public class InteractionModelSingleton {
-	/* Various :-) */
+
+	/* =================================================================
+	 * Public and static fields.
+	 */
+	
+	/* TAG serves as a tag in the log files so we can easily see who is 
+	 * responsible for a given entry in the log files. 
+	 */
 	public final static String TAG = "be.ugent.csl.StepCounter.StepCounterActivity";
+	
+	/* Fixed name of the trace file */
 	private final String accellLogFileName = "accelDataLog";
 
+	/* Log sensor values to the file, field is only accessible through
+	 * the appropriate getter and setter methods */
+	private boolean logging = false;
+	
+	/* File access. We use a BufferedWriter to reduce the number of
+	 * times we need to actually access the file for flushing the data. */
+	private File accelFile = null;
+	private BufferedWriter accellLog = null;
+	private int logLines = -1; // Number of lines in the trace
+	private boolean shouldAppend = true; // Always append to the current file, _except_ when we forcefully clear it!
+	
+	/* =================================================================
+	 * This class acts as a singleton, this means that there can only be a single
+	 * instance (i.e., object) of the class present inside a JVM execution. In other
+	 * words, there is no public constructor available for users to call upon. One
+	 * can simply ask the class for the instance that has been created at class 
+	 * initialisation time, through the get method.
+	 */
 	private static InteractionModelSingleton instance = new InteractionModelSingleton();
 
 	public static InteractionModelSingleton get() {
 		return instance;
 	}
 	
-	/* Log sensor values to the file */
-	private boolean logging = false;
 
+	/* =================================================================
+	 * Getter and setter for the logging field.
+	 */
 	public boolean isLogging() {
 		return logging;
 	}
@@ -42,15 +70,25 @@ public class InteractionModelSingleton {
 		logString("Changed logging data to " + logging);
 	}
 	
-	private File accelFile = null;
-	private BufferedWriter accellLog = null;
 
+	/* =================================================================
+	 * File shizzle methods. 
+	 */
+	
+	/* 
+	 * Did we open the file?
+	 */
 	private boolean openedFile() {
 		return accellLog != null;
 	}
 	
-	// Return the number of lines in the logfile
-	private int logLines = -1;
+	/*
+	 * Return the number of lines in the logfile.
+	 * XXX: this should be synchronized if there is the possibility 
+	 * that multiple users will access this. Since we only use it
+	 * from our own Activity, and we have a singleton, this should 
+	 * not be an issue. 
+	 */
 	private void countLines() {
 		if (accelFile == null) {
 			logLines = -1;
@@ -71,16 +109,19 @@ public class InteractionModelSingleton {
 		return logLines;
 	}
 	
-	// Always append to the current file, _except_ when we forcefully clear it!
-	private boolean shouldAppend = true;
-	
+	/*
+	 * Clear data from the trace file. 
+	 */
 	public void clearFile() {
 		closeFile();
 		shouldAppend = false;
 		openFile();
 	}
 	
-	// Try to ensure that the file is opened, returns success
+	/*
+	 * Try to ensure that the file is opened, returns success. 
+	 * XXX: Same argument as with countLines().
+	 */
 	private boolean openFile() {
 		if (openedFile())
 			return true;
@@ -119,24 +160,22 @@ public class InteractionModelSingleton {
 		accelFile = null;
 	}
 
-	/* Logging the measurements */
+	
+	/* ==============================================================
+	 * Logging the measurements 
+	 */
 	
     // Log a message to the Log, and potentially to the log file if writing to it is enabled
     // If force is true, write anyway (for logging messages, mainly)
-    private void log(long eventTimestamp, long timestamp, float[] rawValues, double[] linear, String message, boolean force) {
+    private void log(long eventTimestamp, long timestamp, float[] rawValues, String message, boolean force) {
     	// TODO: StringBuilder?
     	String logString = eventTimestamp
     			        + ":" + timestamp
     					+ ":" + rawValues[0]
     					+ ":" + rawValues[1]
 			    	    + ":" + rawValues[2]
-			    	    //+ ":" + linear[0]
-			    	    //+ ":" + linear[1]
-			    	    //+ ":" + linear[2]
 			    	    + ":" + message
 			    	    + "\n";
-
-    	//Log.i(TAG, "SENSORVALUES: " + logString);
     	
     	if (!openFile())
     		return;
@@ -151,27 +190,25 @@ public class InteractionModelSingleton {
     	}
     }
 
-	public void log(long eventTimestamp, long timestamp, float[] rawValues, double[] linear) {
-    	log(eventTimestamp, timestamp, rawValues, linear, "", false);
+	public void log(long eventTimestamp, long timestamp, float[] rawValues) {
+    	log(eventTimestamp, timestamp, rawValues, "", false);
     }
     
     public void logString(String string) {
     	log(0, Calendar.getInstance().getTimeInMillis(),
     			new float[]  { 0, 0, 0 },
-    			new double[] { 0, 0, 0 },
     			string, true);
     }
 
-    
     /* Sample rate */
     private int rate = 0;
     private String rateToString(int rate) {
     	switch(rate) {
-    		case 0: return "FASTEST";
-			case 1: return "GAME";
-			case 2: return "UI";
-			case 3: return "NORMAL";
-		}
+    	case 0: return "FASTEST";
+    	case 1: return "GAME";
+    	case 2: return "UI";
+    	case 3: return "NORMAL";
+    	}
     	return "UNKNOWN!";
     }
     public String rateAsString() {
@@ -181,12 +218,7 @@ public class InteractionModelSingleton {
     	this.rate = rate;
     }
     public int getRate() {
-		return rate;
-	}
-    
-    private AccellMeterService accellMeterService = null;
-    public void setService(AccellMeterService s) {
-    	accellMeterService = s;
-    	accellMeterService.setAccuracy(rate);
+    	return rate;
     }
+
 }
