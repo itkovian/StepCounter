@@ -54,6 +54,7 @@ public class StepCounterActivity extends Activity {
 	/* text fields */
 	private TextView sampleRateText;
 	private TextView traceLinesText;
+	private TextView numberOfStepsText;
 	
 	/* message input field */
 	private EditText messageEditText;
@@ -64,12 +65,12 @@ public class StepCounterActivity extends Activity {
 	 * asynchronously, which improves responsiveness and is less 
 	 * error-prone.
 	 */
-	UpdateLogTask logTask;
+	UpdateTraceLineCountTask traceLineCountTask;
 	
 	/* 
 	 * Inner private class. You do not need to change anything here.
 	 */
-	private class UpdateLogTask extends AsyncTask<Void, Integer, Void> {
+	private class UpdateTraceLineCountTask extends AsyncTask<Void, Integer, Void> {
 		@Override
 		protected Void doInBackground(Void... unused) {
 			while (!isCancelled()) {
@@ -155,12 +156,12 @@ public class StepCounterActivity extends Activity {
       	/* This starts the update thread to asynchronously update the
        	 * UI fields when changes occur. You need not touch this code. 
        	 */
-       	logTask = new UpdateLogTask();
-       	logTask.execute();
+       	traceLineCountTask = new UpdateTraceLineCountTask();
+       	traceLineCountTask.execute();
     }
 
 	public void onDestroy() {
-		logTask.cancel(true);
+		traceLineCountTask.cancel(true);
 		InteractionModelSingleton.get().closeFile();    
     	super.onDestroy();
     }   
