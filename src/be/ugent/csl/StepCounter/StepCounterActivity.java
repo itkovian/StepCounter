@@ -130,13 +130,7 @@ public class StepCounterActivity extends Activity {
         
         /* buttons */
         /* the closing button */
-        quitButton = (Button) findViewById(R.id.quit); // R is generated automagically
-        quitButton.setOnTouchListener(new OnTouchListener() {
-        	public boolean onTouch(View v, MotionEvent e) {
-        		finish();
-        		return true;
-        	}
-        });
+        quitButton = null; // FIXME
         
        	/* The log button */
        	logButton = null; //FIXME
