@@ -3,8 +3,12 @@ package be.ugent.csl.StepCounter;
 
 import be.ugent.csl.StepCounter.R;
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -90,6 +94,25 @@ public class StepCounterActivity extends Activity {
 		}
 	}
 	
+	/*
+	 * Interaction with the Service that gathers sensor data.
+	 */
+	/* Service interaction */
+	private boolean accellMeterServiceBound = false;
+
+	private ServiceConnection accellMeterServiceConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			InteractionModelSingleton.get().setService(
+					((AccellMeterService.LocalBinder)service).getService());
+			Log.i(InteractionModelSingleton.TAG, "Service connection established");
+		}
+
+		public void onServiceDisconnected(ComponentName className) {
+			InteractionModelSingleton.get().setService(null);			
+			Log.i(InteractionModelSingleton.TAG, "Service connection removed");
+		}
+
+	};
 
 	/* Interaction with the UI. This function updates the value shown in the UI when
 	 * called by the UpdateLogTask.onProgressUpdate(). We need to make sure we do not
@@ -160,9 +183,26 @@ public class StepCounterActivity extends Activity {
        	 */
        	traceLineCountTask = new UpdateTraceLineCountTask();
        	traceLineCountTask.execute();
+       	
+       	/*
+       	 * This binds the service that obtains sensor data
+       	 */
+       	Intent i = new Intent(this, AccellMeterService.class);
+       	/* First we bind to the service to be able to talk to it through the local binding */
+       	accellMeterServiceBound = bindService(i, accellMeterServiceConnection, BIND_AUTO_CREATE);
+       	
+       	/* We also need to start the service explicitly, with the same intent to make sure
+       	 * the service keeps running even when the activity loses focus.
+       	 */
+       	startService(i);	  
     }
 
 	public void onDestroy() {
+    	/* take down the service */
+    	if(accellMeterServiceBound) {
+    		unbindService(accellMeterServiceConnection);
+    	}
+    	stopService(new Intent(this, AccellMeterService.class));
 		traceLineCountTask.cancel(true);
 		InteractionModelSingleton.get().closeFile();    
     	super.onDestroy();

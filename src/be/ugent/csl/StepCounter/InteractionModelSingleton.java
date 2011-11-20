@@ -37,7 +37,7 @@ public class InteractionModelSingleton {
 	/* Log sensor values to the file, field is only accessible through
 	 * the appropriate getter and setter methods 
 	 */
-	private boolean tracing = false;
+	private boolean tracing = true;
 	
 	/* File access. We use a BufferedWriter to reduce the number of
 	 * times we need to actually access the file for flushing the data. 
@@ -224,5 +224,9 @@ public class InteractionModelSingleton {
     public int getRate() {
     	return rate;
     }
-
+    private AccellMeterService accellMeterService = null;
+    public void setService(AccellMeterService s) {
+    	accellMeterService = s;
+    	accellMeterService.setAccuracy(rate);
+    }
 }
