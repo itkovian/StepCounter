@@ -145,6 +145,7 @@ public class StepCounterActivity extends Activity {
         /* Text Views */
         sampleRateText = null; //FIXME
         traceLinesText = null; //FIXME
+        numberOfStepsText = null; //FIXME
        	
         /* ============================================================== */
         /* Input field for the message */
