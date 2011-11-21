@@ -223,10 +223,10 @@ public class InteractionModelSingleton {
     	this.rate = rate;
     	int accuracy = 0;
     	switch(rate) {
-    	case 0: accuracy = SensorManager.SENSOR_DELAY_FASTEST;
-    	case 1: accuracy = SensorManager.SENSOR_DELAY_GAME;
-    	case 2: accuracy = SensorManager.SENSOR_DELAY_NORMAL;
-    	case 3: accuracy = SensorManager.SENSOR_DELAY_UI;
+    	case 0: accuracy = SensorManager.SENSOR_DELAY_FASTEST; break;
+    	case 1: accuracy = SensorManager.SENSOR_DELAY_GAME; break;
+    	case 2: accuracy = SensorManager.SENSOR_DELAY_NORMAL; break;
+    	case 3: accuracy = SensorManager.SENSOR_DELAY_UI; break;
     	}
     	if(accellMeterService != null) {
     		accellMeterService.setAccuracy(accuracy);
