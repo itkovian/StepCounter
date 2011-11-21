@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 
+import android.hardware.SensorManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -37,7 +38,7 @@ public class InteractionModelSingleton {
 	/* Log sensor values to the file, field is only accessible through
 	 * the appropriate getter and setter methods 
 	 */
-	private boolean tracing = true;
+	private boolean tracing = false;
 	
 	/* File access. We use a BufferedWriter to reduce the number of
 	 * times we need to actually access the file for flushing the data. 
@@ -220,6 +221,16 @@ public class InteractionModelSingleton {
     }
     public void setRate(int rate) {
     	this.rate = rate;
+    	int accuracy = 0;
+    	switch(rate) {
+    	case 0: accuracy = SensorManager.SENSOR_DELAY_FASTEST;
+    	case 1: accuracy = SensorManager.SENSOR_DELAY_GAME;
+    	case 2: accuracy = SensorManager.SENSOR_DELAY_NORMAL;
+    	case 3: accuracy = SensorManager.SENSOR_DELAY_UI;
+    	}
+    	if(accellMeterService != null) {
+    		accellMeterService.setAccuracy(accuracy);
+    	}
     }
     public int getRate() {
     	return rate;
