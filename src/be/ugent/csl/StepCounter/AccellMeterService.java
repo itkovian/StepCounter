@@ -66,8 +66,8 @@ public class AccellMeterService extends Service implements SensorEventListener  
 		 * te vragen a.d.h.v. een waarde in een veld uit de Sensor 
 		 * klasse.   
 		 */
-		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		mAccellSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		mSensorManager = null; 
+		mAccellSensor = null; 
 	}
 	
 	
@@ -110,7 +110,6 @@ public class AccellMeterService extends Service implements SensorEventListener  
     
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     	// TODO Auto-generated method stub
-    	//Log.i(TAG, "The accuracy for " + sensor + "was set to " + accuracy);
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -118,12 +117,15 @@ public class AccellMeterService extends Service implements SensorEventListener  
     		return;
     	}
 
-
-    	InteractionModelSingleton.get().trace(
-    			event.timestamp,
-    			Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
-    			event.values
-    	);
+    	/* 
+    	 * Opgave 2: Zorg ervoor dat de gemeten data die je in 
+    	 * het event-object terugvindt ook gelogd wordt door de
+    	 * trace methode van InteractionModelSingleton op te roepen
+    	 * met de gepaste argumenten. Je kunt hierbij gebruik maken 
+    	 * van de velden in het event-object alsook van de tijd die
+    	 * je terugkrijgt van een Calendar-object dat je in de Java
+    	 * API terugvindt (java.util.Calendar).
+    	 */
 	}
 
     
