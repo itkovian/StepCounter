@@ -14,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -21,6 +23,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
 
 
@@ -34,6 +38,8 @@ import android.widget.TextView;
  * UI fields when stuff happens.
  */
 public class StepCounterActivity extends Activity {
+	
+	public String TAG="be.ugent.csl.StepCounter.StepCounterActivity";
 	
 	/* ======================================================
 	/* UI items. You will need to attach these to the corresponding 
@@ -54,6 +60,9 @@ public class StepCounterActivity extends Activity {
     
 	/* seekbar for the logging rate */
 	private SeekBar rateMultiplierBar;
+	
+	/* spinner for detector selection */
+	private Spinner detectorSpinner;
 	
 	/* text fields */
 	private TextView sampleRateText;
@@ -94,6 +103,31 @@ public class StepCounterActivity extends Activity {
 		}
 	}
 	
+	private UpdateStepCountTask stepCountTask;
+	
+	/* 
+	 * Inner private class. You do not need to change anything here.
+	 */
+	private class UpdateStepCountTask extends AsyncTask<Void, Integer, Void> {
+		@Override
+		protected Void doInBackground(Void... unused) {
+			while (!isCancelled()) {
+				try {
+					Thread.sleep(500);
+				} catch (Exception e) {
+					Log.e(InteractionModelSingleton.TAG, e.getMessage());
+				}
+				publishProgress(InteractionModelSingleton.get().getCurrentStepDetector().getSteps());
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			updateStepsCount(progress[0]);
+		}
+	}
+	
 	/*
 	 * Interaction with the Service that gathers sensor data.
 	 */
@@ -113,6 +147,7 @@ public class StepCounterActivity extends Activity {
 		}
 
 	};
+	
 
 	/* Interaction with the UI. This function updates the value shown in the UI when
 	 * called by the UpdateLogTask.onProgressUpdate(). We need to make sure we do not
@@ -125,6 +160,14 @@ public class StepCounterActivity extends Activity {
 		}
 	}
 	
+	/* Interaction with the UI. This function updates the value shown in the UI when
+	 * called by the UpdateStepCountTask.onProgressUpdate().
+	 */
+	public void updateStepsCount(Integer steps) {
+		/* 
+		 * Opgave: Vul deze code aan zodat het juiste veld de juiste waarde krijgt 
+		 */
+	}
 	
     /* ====================================================================
      * This function is called when the activity is created.
@@ -177,12 +220,48 @@ public class StepCounterActivity extends Activity {
         /* ============================================================== */
         /* seekbar */
         rateMultiplierBar = null; //FIXME
+        
+        /* ============================================================== */
+        /* Drop down menu */
+        detectorSpinner = (Spinner) findViewById(R.id.detectorList);
+        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this, R.array.detector_array, android.R.layout.simple_spinner_item);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        detectorSpinner.setAdapter(filterAdapter);
+        detectorSpinner.setOnItemSelectedListener(new OnItemSelectedListener () {
+
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int pos, long id) {
+				String value = parent.getItemAtPosition(pos).toString();
+				StepDetection detector = null;
+				if(!value.equals("No detection")) {
+					try {
+						detector = (StepDetection) Class.forName("be.ugent.csl.StepCounter."+value).newInstance();
+					} catch (IllegalAccessException e) {
+						Log.e(TAG, "Not allowed to for detector selection " + value, e);
+					} catch (InstantiationException e) {
+						Log.e(TAG, "Cannot instantiate for detector selection " + value, e);
+					} catch (ClassNotFoundException e) {
+						Log.e(TAG, "Cannot find class for detector selection " + value, e);
+					}
+				}
+				//accellMeterService.setFilter(detector);
+			}
+
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub	
+			}
+        	
+        });
+
 
       	/* This starts the update thread to asynchronously update the
        	 * UI fields when changes occur. You need not touch this code. 
        	 */
        	traceLineCountTask = new UpdateTraceLineCountTask();
        	traceLineCountTask.execute();
+       	
+       	stepCountTask = new UpdateStepCountTask();
+       	stepCountTask.execute();
        	
        	/*
        	 * This binds the service that obtains sensor data

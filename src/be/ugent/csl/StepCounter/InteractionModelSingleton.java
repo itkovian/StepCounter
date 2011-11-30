@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.hardware.SensorManager;
@@ -47,6 +48,18 @@ public class InteractionModelSingleton {
 	private BufferedWriter accellTrace = null;
 	private int traceLines = -1; // Number of lines in the trace
 	private boolean shouldAppend = true; // Always append to the current file, _except_ when we forcefully clear it!
+	
+	/* =================================================================
+	 * Step detectors.
+	 * Each of these will be called from the trace() method to store and process
+	 * the latest data item.
+	 */
+	private ArrayList<StepDetection> detectors = new ArrayList();
+	private StepDetection currentDetector = null;
+	
+	public StepDetection getCurrentStepDetector() {
+		return currentDetector;
+	}
 	
 	/* =================================================================
 	 * This class acts as a singleton, this means that there can only be a single
@@ -171,6 +184,15 @@ public class InteractionModelSingleton {
     // Log a message to the Log, and potentially to the log file if writing to it is enabled
     // If force is true, write anyway (for logging messages, mainly)
     private void trace(long eventTimestamp, long timestamp, float[] rawValues, String message, boolean force) {
+    	
+    	/* Note that this is not the best way, since we now store 
+    	 * the same data multiple times, but it makes understanding 
+    	 * what happens a lot easier.
+    	 */
+    	for(StepDetection detector: detectors) {
+    		detector.addData(timestamp, rawValues[0], rawValues[1], rawValues[2]);
+    	}
+    	
     	// TODO: StringBuilder?
     	String traceString = eventTimestamp
     			           + ":" + timestamp
