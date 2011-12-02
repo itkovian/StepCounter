@@ -54,11 +54,19 @@ public class InteractionModelSingleton {
 	 * Each of these will be called from the trace() method to store and process
 	 * the latest data item.
 	 */
-	private ArrayList<StepDetection> detectors = new ArrayList();
+	private ArrayList<StepDetection> detectors = new ArrayList<StepDetection>();
 	private StepDetection currentDetector = null;
 	
 	public StepDetection getCurrentStepDetector() {
 		return currentDetector;
+	}
+	
+	public void setStepDetector(Class d) {
+		for(StepDetection detector: detectors) {
+			if(detector.getClass().equals(d)) {
+				currentDetector = detector;
+			}
+		}
 	}
 	
 	/* =================================================================
@@ -68,6 +76,9 @@ public class InteractionModelSingleton {
 	 * can simply ask the class for the instance that has been created at class 
 	 * initialisation time, through the get method.
 	 */
+	private void InteractionModelSingleton() {
+		detectors.add(new SimpleThresholdDetector());
+	}
 	private static InteractionModelSingleton instance = new InteractionModelSingleton();
 
 	public static InteractionModelSingleton get() {

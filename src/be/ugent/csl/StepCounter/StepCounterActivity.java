@@ -117,7 +117,10 @@ public class StepCounterActivity extends Activity {
 				} catch (Exception e) {
 					Log.e(InteractionModelSingleton.TAG, e.getMessage());
 				}
-				publishProgress(InteractionModelSingleton.get().getCurrentStepDetector().getSteps());
+				StepDetection detector = InteractionModelSingleton.get().getCurrentStepDetector(); 
+				if(detector != null) {
+					publishProgress(detector.getSteps());
+				}
 			}
 			return null;
 		}
@@ -224,27 +227,20 @@ public class StepCounterActivity extends Activity {
         /* ============================================================== */
         /* Drop down menu */
         detectorSpinner = (Spinner) findViewById(R.id.detectorList);
-        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this, R.array.detector_array, android.R.layout.simple_spinner_item);
-        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        detectorSpinner.setAdapter(filterAdapter);
+        ArrayAdapter<CharSequence> detectorAdapter = ArrayAdapter.createFromResource(this, R.array.detector_array, android.R.layout.simple_spinner_item);
+        detectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        detectorSpinner.setAdapter(detectorAdapter);
         detectorSpinner.setOnItemSelectedListener(new OnItemSelectedListener () {
 
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
 				String value = parent.getItemAtPosition(pos).toString();
-				StepDetection detector = null;
-				if(!value.equals("No detection")) {
-					try {
-						detector = (StepDetection) Class.forName("be.ugent.csl.StepCounter."+value).newInstance();
-					} catch (IllegalAccessException e) {
-						Log.e(TAG, "Not allowed to for detector selection " + value, e);
-					} catch (InstantiationException e) {
-						Log.e(TAG, "Cannot instantiate for detector selection " + value, e);
-					} catch (ClassNotFoundException e) {
-						Log.e(TAG, "Cannot find class for detector selection " + value, e);
-					}
+				try {
+					Class detectorClass = Class.forName("be.ugent.csl.StepCounter."+value);
+					InteractionModelSingleton.get().setStepDetector(detectorClass);
+				} catch (ClassNotFoundException e) {
+					Log.e(TAG, "Cannot find class for detector selection " + value, e);
 				}
-				//accellMeterService.setFilter(detector);
 			}
 
 			public void onNothingSelected(AdapterView<?> arg0) {
