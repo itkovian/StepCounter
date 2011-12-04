@@ -4,6 +4,6 @@
     <string name="app_name">Stappenteller</string>
     <string name="detector_prompt">Choose a filter</string>
     <string-array name="detector_array">
-    	<item>SimpleThresholdDetector</item>
+    	<item>Simple threshold</item>
     </string-array>
 </resources>

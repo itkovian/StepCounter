@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import android.hardware.SensorManager;
 import android.os.Environment;
@@ -21,6 +22,7 @@ import android.util.Log;
  * XXX: Eventually this could/should become a real (non-static) MVC class with real listeners...
  *  
  * @author Bart Coppens
+ * @author Andy Georges
  */
 public class InteractionModelSingleton {
 
@@ -54,18 +56,17 @@ public class InteractionModelSingleton {
 	 * Each of these will be called from the trace() method to store and process
 	 * the latest data item.
 	 */
-	private ArrayList<StepDetection> detectors = new ArrayList<StepDetection>();
+	private HashMap<String, StepDetection> detectors = new HashMap<String, StepDetection>();
 	private StepDetection currentDetector = null;
 	
 	public StepDetection getCurrentStepDetector() {
 		return currentDetector;
 	}
 	
-	public void setStepDetector(Class d) {
-		for(StepDetection detector: detectors) {
-			if(detector.getClass().equals(d)) {
-				currentDetector = detector;
-			}
+	public void setStepDetector(String s) {
+		StepDetection d = detectors.get(s); 
+		if(d != null) {
+			currentDetector = d;
 		}
 	}
 	
@@ -77,7 +78,7 @@ public class InteractionModelSingleton {
 	 * initialisation time, through the get method.
 	 */
 	private void InteractionModelSingleton() {
-		detectors.add(new SimpleThresholdDetector());
+		detectors.put("Simple threshold", new SimpleThresholdDetector());
 	}
 	private static InteractionModelSingleton instance = new InteractionModelSingleton();
 
@@ -200,7 +201,7 @@ public class InteractionModelSingleton {
     	 * the same data multiple times, but it makes understanding 
     	 * what happens a lot easier.
     	 */
-    	for(StepDetection detector: detectors) {
+    	for(StepDetection detector: detectors.values()) {
     		detector.addData(timestamp, rawValues[0], rawValues[1], rawValues[2]);
     	}
     	

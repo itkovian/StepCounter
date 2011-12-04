@@ -68,6 +68,8 @@ public class AccellMeterService extends Service implements SensorEventListener  
 		 */
 		mSensorManager = null; 
 		mAccellSensor = null; 
+		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		mAccellSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 	}
 	
 	

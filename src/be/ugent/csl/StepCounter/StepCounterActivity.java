@@ -234,13 +234,8 @@ public class StepCounterActivity extends Activity {
 
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
-				String value = parent.getItemAtPosition(pos).toString();
-				try {
-					Class detectorClass = Class.forName("be.ugent.csl.StepCounter."+value);
-					InteractionModelSingleton.get().setStepDetector(detectorClass);
-				} catch (ClassNotFoundException e) {
-					Log.e(TAG, "Cannot find class for detector selection " + value, e);
-				}
+				String detectorName = parent.getItemAtPosition(pos).toString();
+				InteractionModelSingleton.get().setStepDetector(detectorName);
 			}
 
 			public void onNothingSelected(AdapterView<?> arg0) {
