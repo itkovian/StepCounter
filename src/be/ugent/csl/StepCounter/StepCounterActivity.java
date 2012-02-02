@@ -1,7 +1,5 @@
 package be.ugent.csl.StepCounter;
 
-import java.util.Timer;
-import java.util.TimerTask;
 
 import be.ugent.csl.StepCounter.R;
 import android.app.Activity;
@@ -17,7 +15,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -27,31 +24,80 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 /*
  * @author Andy Georges
+ * @author Bart Coppens
+ * 
+ * This class implements the (only) activity of the application.
+ * Here we define the actions that need to be taken when something
+ * happens to each of the UI components and to update the various
+ * UI fields when stuff happens.
+ * 
+ * Note to students. It is indicated where you need to add or change
+ * code. If you add extra code, feel free to do so, but add it at the bottom of the 
+ * class! Otherwise you might generate merge conflicts with patches
+ * we make available at a later stage in the project.
  */
 public class StepCounterActivity extends Activity {
-	/* UI items */
-	private Button closeButton;
-	private Button logButton;
-	private SeekBar rateMultiplier;
-	private TextView sampleRateText;
-	//private Spinner filterSpinner;
-	private TextView logLinesText;
 	
-	private class UpdateLogTask extends AsyncTask<Void, Integer, Void> {
+	public String TAG="be.ugent.csl.StepCounter.StepCounterActivity";
+	
+	/* ======================================================
+	/* UI items. You will need to attach these to the corresponding 
+	 * item in the main.xml layout you defined. Note that it is
+	 * not necessary for these variables to be declared here, they
+	 * could also be declared e.g., in the onCreate() method, IF 
+	 * they need not be accessed from elsewhere. However, for 
+	 * clarity, we chose to declare them as object fields.
+	 */
+	
+	/* buttons */
+	private Button quitButton;
+	private Button logButton;
+	private Button clearButton;
+	
+	/* checkboxes */
+    private CheckBox logDataCheckBox;
+    
+	/* seekbar for the logging rate */
+	private SeekBar rateMultiplierBar;
+	
+	/* spinner for detector selection */
+	private Spinner detectorSpinner;
+	
+	/* text fields */
+	private TextView sampleRateText;
+	private TextView traceLinesText;
+	private TextView numberOfStepsText;
+	
+	/* message input field */
+	private EditText messageEditText;
+	
+	/* ================================================================== */
+	/* Updater for the line count field showing how many lines 
+	 * were found in the trace file. This allows the UI to be updated 
+	 * asynchronously, which improves responsiveness and is less 
+	 * error-prone.
+	 */
+	UpdateTraceLineCountTask traceLineCountTask;
+	
+	/* 
+	 * Inner private class. You do not need to change anything here.
+	 */
+	private class UpdateTraceLineCountTask extends AsyncTask<Void, Integer, Void> {
 		@Override
 		protected Void doInBackground(Void... unused) {
 			while (!isCancelled()) {
 				try {
 					Thread.sleep(500);
 				} catch (Exception e) {
-					Log.e(InteractionModelSingleton.TAG, e.getMessage());
+					Log.e(Util.TAG, e.getMessage());
 				}
-				publishProgress(InteractionModelSingleton.get().logFileLines());
+				publishProgress(Util.get().logFileLines());
 			}
 			return null;
 		}
@@ -61,100 +107,156 @@ public class StepCounterActivity extends Activity {
 			updateLogCount();
 		}
 	}
-	UpdateLogTask logTask;
-
-	/* Service interaction */
+	
+	private UpdateStepCountTask stepCountTask;
+	
+	/* 
+	 * Inner private class. You do not need to change anything here.
+	 */
+	private class UpdateStepCountTask extends AsyncTask<Void, Integer, Void> {
+		@Override
+		protected Void doInBackground(Void... unused) {
+			while (!isCancelled()) {
+				try {
+					Thread.sleep(500);
+				} catch (Exception e) {
+					Log.e(Util.TAG, e.getMessage());
+				}
+				StepDetection detector = Util.get().getCurrentStepDetector(); 
+				if(detector != null) {
+					publishProgress(detector.getSteps());
+				}
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onProgressUpdate(Integer... progress) {
+			updateStepsCount(progress[0]);
+		}
+	}
+	
+	/*
+	 * Interaction with the Service that gathers sensor data.
+	 */
 	private boolean accellMeterServiceBound = false;
 
 	private ServiceConnection accellMeterServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			InteractionModelSingleton.get().setService(
+			Util.get().setService(
 					((AccellMeterService.LocalBinder)service).getService());
-			Log.i(InteractionModelSingleton.TAG, "Service connection established");
+			Log.i(Util.TAG, "Service connection established");
 		}
-		
+
 		public void onServiceDisconnected(ComponentName className) {
-			InteractionModelSingleton.get().setService(null);			
-			Log.i(InteractionModelSingleton.TAG, "Service connection removed");
+			Util.get().setService(null);			
+			Log.i(Util.TAG, "Service connection removed");
 		}
-		
+
 	};
 	
+
+	/* Interaction with the UI. This function updates the value shown in the UI when
+	 * called by the UpdateLogTask.onProgressUpdate(). We need to make sure we do not
+	 * accidentally change the information displayed by this field if it does not 
+	 * exist yet.
+	 */
 	public void updateLogCount() {
-		logLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
+		if(traceLinesText != null) {
+			traceLinesText.setText(Integer.toString(Util.get().logFileLines()));			
+		}
 	}
 	
-    /** Called when the activity is first created. */
+	public void onDestroy() {
+    	/* take down the service */
+    	if(accellMeterServiceBound) {
+    		unbindService(accellMeterServiceConnection);
+    	}
+    	stopService(new Intent(this, AccellMeterService.class));
+		traceLineCountTask.cancel(true);
+		Util.get().closeFile();    
+    	super.onDestroy();
+    }   	
+	
+	/* Interaction with the UI. This function updates the value shown in the UI when
+	 * called by the UpdateStepCountTask.onProgressUpdate().
+	 */
+	public void updateStepsCount(Integer steps) {
+		/* 
+		 * Opgave: Vul deze code aan zodat het juiste veld de juiste waarde krijgt.
+		 */
+	}
+	
+
+    /* ====================================================================
+     * This function is called when the activity is created.
+     * 
+     * Here, you need to add code for several things.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        /* We indicate here that we will be using the layout defined in main.xml
+         * which has been translated into R.java.
+         */
         setContentView(R.layout.main);
         
         /* ============================================================== */
+        /* PRACTICUM 3.
+         * Opgave 2: a. Geef deze widgets een gepaste waarde door te refereren
+         *              naar de juiste ID's uit de layout.
+         *           b. Zorg ervoor dat de juiste luisteraars gedefinieerd
+         *              worden en dat je ook de passende stappen onderneemt
+         *              opdat de UI consistent blijft en het resultaat van 
+         *              actie weergegeven wordt. Je kunt hiervoor anonieme 
+         *              objecten gebruiken waarvoor je de juiste methoden 
+         *              implementeert.
+         */
+        
         /* buttons */
         /* the closing button */
-        closeButton = (Button) findViewById(R.id.close);
-        closeButton.setOnTouchListener(new OnTouchListener() {
-          public boolean onTouch(View v, MotionEvent e) {
-            finish();
-            return true;
-          }
-        });
+        quitButton = null; // FIXME
         
+       	/* The log button */
+       	logButton = null; //FIXME
+       	/* The clear-the-trace-file button */
+       	clearButton = null; //FIXME
+
+        /* ============================================================== */
+       	/* Checkboxes */
+       	logDataCheckBox = null; //FIXME
+
         /* ============================================================== */
         /* Text Views */
-        sampleRateText = (TextView) findViewById(R.id.sampleRateText);
+        sampleRateText = null; //FIXME
+        traceLinesText = null; //FIXME
+        numberOfStepsText = null; //FIXME
+       	
+        /* ============================================================== */
+        /* Input field for the message */
+        messageEditText = null; //FIXME
         
         /* ============================================================== */
         /* seekbar */
-        rateMultiplier = (SeekBar)this.findViewById(R.id.rateMultiplier);
-        rateMultiplier.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				InteractionModelSingleton.get().setRate(progress);
-				sampleRateText.setText(InteractionModelSingleton.get().rateAsString());
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub	
-			}
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub	
-			}
-        	
-        	
-        });
-        rateMultiplier.setProgress(InteractionModelSingleton.get().getRate());
+        rateMultiplierBar = null; //FIXME
+        
+        
+        /* Einde van opgave 2 */
+        /* ============================================================== */
         
         /* ============================================================== */
         /* Drop down menu */
-        /*
-        filterSpinner = (Spinner) findViewById(R.id.filterList);
-        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this, R.array.filter_array, android.R.layout.simple_spinner_item);
-        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        filterSpinner.setAdapter(filterAdapter);
-        filterSpinner.setOnItemSelectedListener(new OnItemSelectedListener () {
+        detectorSpinner = (Spinner) findViewById(R.id.detectorList);
+        ArrayAdapter<CharSequence> detectorAdapter = ArrayAdapter.createFromResource(this, R.array.detector_array, android.R.layout.simple_spinner_item);
+        detectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        detectorSpinner.setAdapter(detectorAdapter);
+        detectorSpinner.setOnItemSelectedListener(new OnItemSelectedListener () {
 
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
-				String value = parent.getItemAtPosition(pos).toString();
-				StepDetection detector = null;
-				Log.i(TAG, "Filter spinner had this selected: " + parent.getItemAtPosition(pos).toString());
-				if(!value.equals("No detection")) {
-					try {
-						detector = (StepDetection) Class.forName("be.ugent.csl.StepCounter."+value).newInstance();
-					} catch (IllegalAccessException e) {
-						Log.e(TAG, "Not allowed to for filter selection " + value, e);
-					} catch (InstantiationException e) {
-						Log.e(TAG, "Cannot instantiate for filter selection " + value, e);
-					} catch (ClassNotFoundException e) {
-						Log.e(TAG, "Cannot find class for filter selection " + value, e);
-					}
-				}
-				accellMeterService.setFilter(detector);
+				String detectorName = parent.getItemAtPosition(pos).toString();
+				Util.get().setStepDetector(detectorName);
 			}
 
 			public void onNothingSelected(AdapterView<?> arg0) {
@@ -162,66 +264,29 @@ public class StepCounterActivity extends Activity {
 			}
         	
         });
-        */
-        
-        
-       	Intent i = new Intent(this, AccellMeterService.class);
-       	/* first we bind to the service to be able to talk to it through the local binding */
-       	accellMeterServiceBound = bindService(i, accellMeterServiceConnection, BIND_AUTO_CREATE);
-       	Log.i(InteractionModelSingleton.TAG, "AccelMeterService bound");
+
+
+      	/* This starts the update thread to asynchronously update the
+       	 * UI fields when changes occur. You need not touch this code. 
+       	 */
+       	traceLineCountTask = new UpdateTraceLineCountTask();
+       	traceLineCountTask.execute();
        	
-       	/* we also need to start the service explicitly, with the same intent to make sure
-       	 * the service keeps running even when the activity loses focus. 
+       	stepCountTask = new UpdateStepCountTask();
+       	stepCountTask.execute();
+       	
+       	/*
+       	 * This binds the service that obtains sensor data
+       	 */
+       	Intent i = new Intent(this, AccellMeterService.class);
+       	/* First we bind to the service to be able to talk to it through the local binding */
+       	accellMeterServiceBound = bindService(i, accellMeterServiceConnection, BIND_AUTO_CREATE);
+       	
+       	/* We also need to start the service explicitly, with the same intent to make sure
+       	 * the service keeps running even when the activity loses focus.
        	 */
        	startService(i);	  
-       	Log.i(InteractionModelSingleton.TAG, "AccellMeterService started");
-        
-       	/* The log button */
-       	logButton = (Button) findViewById(R.id.addMessageButton);
-       	
-       	final EditText data = (EditText) findViewById(R.id.messageData);
-
-       	logLinesText = (TextView) findViewById(R.id.linesCount);
-       	
-       	logButton.setOnClickListener(new OnClickListener() {
-       		@Override
-       		public void onClick(View v) {
-       			InteractionModelSingleton.get().logString(data.getText().toString());
-       			updateLogCount();
-       		}
-       	});
-
-       	
-       	CheckBox logData = (CheckBox) findViewById(R.id.logData);
-       	logData.setChecked(InteractionModelSingleton.get().isLogging());
-       	logData.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-       		@Override
-       		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-       			InteractionModelSingleton.get().setLogging(isChecked);
-       		}
-       	});
-
-       	logTask = new UpdateLogTask();
-       	logTask.execute();
-       	
-       	Button clearButton = (Button) findViewById(R.id.clear);
-       	clearButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				InteractionModelSingleton.get().clearFile();
-				updateLogCount();
-			}
-		});
     }
 
-	public void onDestroy() {
-		logTask.cancel(true);
-    	/* take down the service */
-    	if(accellMeterServiceBound) {
-    		unbindService(accellMeterServiceConnection);
-    	}
-    	stopService(new Intent(this, AccellMeterService.class));
-    	super.onDestroy();
-    }   
+
 }

@@ -6,8 +6,8 @@ package be.ugent.csl.StepCounter;
  * @author Andy Georges
  */
 public interface StepDetection {
-
+	
 	public void addData(long timestamp, double xAccell, double yAccell, double zAccell);
-	public boolean stepDetected();
+	public int getSteps();
 	
 }

@@ -26,24 +26,30 @@ import android.widget.Toast;
 
 public class AccellMeterService extends Service implements SensorEventListener  {
 	
-	/* Communication with the using Activity */
+	/* 
+	 * Communication with the Activity that is using this Service.
+	 */
     private LocalBinder accellBinder = new LocalBinder();
     	
     /* Various */
 	private final String TAG = "be.ugent.csl.StepCounter.AccellMeterService";
 	
-	/* Sensor shizzle */
+	/* 
+	 * Sensor objects 
+	 */
 	private SensorManager mSensorManager;
 	private Sensor mAccellSensor;
 	
-	/* Sensor data structures */
-	private double [] gravity = new double[3]; 
-	
-	/* Global fugly shizzle */
+	/* 
+	 * Global data that is used to make sure the service is actually up and
+	 * running before using it.  
+	 */
 	private boolean started = false;
 	private boolean registered = false;
 	
-	/* Step detection */
+	/* 
+	 * The following object will be used to assign a 
+	 * step detector that is used  */
 	private StepDetection detector = null;
 
 	
@@ -52,11 +58,18 @@ public class AccellMeterService extends Service implements SensorEventListener  
 	
 		super.onCreate();
 		
-		/* get the sensor manager over here */
+		/* 
+		 * Opgave 1. Zorg ervoor dat de volgende variabelen een 
+		 * correcte waarde krijgen. Je kunt gebruik maken van de 
+		 * functie getSystemService uit de Context klasse. De 
+		 * mSensorManager laat je dan toe om de correct sensor op
+		 * te vragen a.d.h.v. een waarde in een veld uit de Sensor 
+		 * klasse.   
+		 */
+		mSensorManager = null; 
+		mAccellSensor = null; 
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mAccellSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-       	
-		Log.i(TAG, "AccellMeterService started");
 	}
 	
 	
@@ -91,17 +104,14 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	mSensorManager.unregisterListener(this, mAccellSensor);
     	Toast.makeText(this, "AccellMeterService destroyed", Toast.LENGTH_LONG).show();
     	
-    	InteractionModelSingleton.get().closeFile();
+    	Util.get().closeFile();
     	
     	super.onDestroy();
-
-    	Log.i(TAG, "AccellMeterService destroyed");
     }
     
     
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     	// TODO Auto-generated method stub
-    	//Log.i(TAG, "The accuracy for " + sensor + "was set to " + accuracy);
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -109,32 +119,15 @@ public class AccellMeterService extends Service implements SensorEventListener  
     		return;
     	}
 
-    	// the sensor has three values, acceleration in X, Y, Z
-    	// directions. 
-
-    	// high-pass filter (canceling the baseline gravity value)
-    	final double alpha = 0.8;
-
-      // g_n = a g_{n-1} + (1-a) x_n
-    	gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-    	gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-    	gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-
-    	double [] linear_acceleration = new double[3];
-      // la_n = x_n - g_n = x_n - a g_{n-1} + (a - 1) x_n = a ( x_n - g_{n-1})
-    	linear_acceleration[0] = event.values[0] - gravity[0];
-    	linear_acceleration[1] = event.values[1] - gravity[1];
-    	linear_acceleration[2] = event.values[2] - gravity[2];
-
-    	//if(detector != null) {
-    	//	detector.addData(event.timestamp, linear_acceleration[0], linear_acceleration[1], linear_acceleration[2]);
-    	//}
-
-    	InteractionModelSingleton.get().log(
-    			event.timestamp,
-    			Calendar.getInstance().getTimeInMillis(), // TODO event.timestamp
-    			event.values, linear_acceleration
-    	);
+    	/* 
+    	 * Opgave 2: Zorg ervoor dat de gemeten data die je in 
+    	 * het event-object terugvindt ook gelogd wordt door de
+    	 * trace methode van InteractionModelSingleton op te roepen
+    	 * met de gepaste argumenten. Je kunt hierbij gebruik maken 
+    	 * van de velden in het event-object alsook van de tijd die
+    	 * je terugkrijgt van een Calendar-object dat je in de Java
+    	 * API terugvindt (java.util.Calendar).
+    	 */
 	}
 
     
