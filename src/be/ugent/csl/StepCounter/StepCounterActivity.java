@@ -203,7 +203,8 @@ public class StepCounterActivity extends Activity {
         setContentView(R.layout.main);
         
         /* ============================================================== */
-        /* Opgave 2: a. Geef deze widgets een gepaste waarde door te refereren
+        /* PRACTICUM 3.
+         * Opgave 2: a. Geef deze widgets een gepaste waarde door te refereren
          *              naar de juiste ID's uit de layout.
          *           b. Zorg ervoor dat de juiste luisteraars gedefinieerd
          *              worden en dat je ook de passende stappen onderneemt
@@ -239,6 +240,10 @@ public class StepCounterActivity extends Activity {
         /* ============================================================== */
         /* seekbar */
         rateMultiplierBar = null; //FIXME
+        
+        
+        /* Einde van opgave 2 */
+        /* ============================================================== */
         
         /* ============================================================== */
         /* Drop down menu */
