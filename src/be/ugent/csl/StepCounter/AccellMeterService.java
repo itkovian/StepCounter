@@ -104,7 +104,7 @@ public class AccellMeterService extends Service implements SensorEventListener  
     	mSensorManager.unregisterListener(this, mAccellSensor);
     	Toast.makeText(this, "AccellMeterService destroyed", Toast.LENGTH_LONG).show();
     	
-    	InteractionModelSingleton.get().closeFile();
+    	Util.get().closeFile();
     	
     	super.onDestroy();
     }

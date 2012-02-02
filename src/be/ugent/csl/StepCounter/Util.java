@@ -24,7 +24,7 @@ import android.util.Log;
  * @author Bart Coppens
  * @author Andy Georges
  */
-public class InteractionModelSingleton {
+public class Util {
 
 	/* =================================================================
 	 * Public and static fields.
@@ -77,12 +77,12 @@ public class InteractionModelSingleton {
 	 * can simply ask the class for the instance that has been created at class 
 	 * initialisation time, through the get method.
 	 */
-	private void InteractionModelSingleton() {
+	private Util() {
 		detectors.put("Simple threshold", new SimpleThresholdDetector());
 	}
-	private static InteractionModelSingleton instance = new InteractionModelSingleton();
+	private static Util instance = new Util();
 
-	public static InteractionModelSingleton get() {
+	public static Util get() {
 		return instance;
 	}
 	

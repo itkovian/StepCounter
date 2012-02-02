@@ -36,6 +36,11 @@ import android.widget.TextView;
  * Here we define the actions that need to be taken when something
  * happens to each of the UI components and to update the various
  * UI fields when stuff happens.
+ * 
+ * Note to students. It is indicated where you need to add or change
+ * code. If you add extra code, feel free to do so, but add it at the bottom of the 
+ * class! Otherwise you might generate merge conflicts with patches
+ * we make available at a later stage in the project.
  */
 public class StepCounterActivity extends Activity {
 	
@@ -90,9 +95,9 @@ public class StepCounterActivity extends Activity {
 				try {
 					Thread.sleep(500);
 				} catch (Exception e) {
-					Log.e(InteractionModelSingleton.TAG, e.getMessage());
+					Log.e(Util.TAG, e.getMessage());
 				}
-				publishProgress(InteractionModelSingleton.get().logFileLines());
+				publishProgress(Util.get().logFileLines());
 			}
 			return null;
 		}
@@ -115,9 +120,9 @@ public class StepCounterActivity extends Activity {
 				try {
 					Thread.sleep(500);
 				} catch (Exception e) {
-					Log.e(InteractionModelSingleton.TAG, e.getMessage());
+					Log.e(Util.TAG, e.getMessage());
 				}
-				StepDetection detector = InteractionModelSingleton.get().getCurrentStepDetector(); 
+				StepDetection detector = Util.get().getCurrentStepDetector(); 
 				if(detector != null) {
 					publishProgress(detector.getSteps());
 				}
@@ -134,19 +139,18 @@ public class StepCounterActivity extends Activity {
 	/*
 	 * Interaction with the Service that gathers sensor data.
 	 */
-	/* Service interaction */
 	private boolean accellMeterServiceBound = false;
 
 	private ServiceConnection accellMeterServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			InteractionModelSingleton.get().setService(
+			Util.get().setService(
 					((AccellMeterService.LocalBinder)service).getService());
-			Log.i(InteractionModelSingleton.TAG, "Service connection established");
+			Log.i(Util.TAG, "Service connection established");
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
-			InteractionModelSingleton.get().setService(null);			
-			Log.i(InteractionModelSingleton.TAG, "Service connection removed");
+			Util.get().setService(null);			
+			Log.i(Util.TAG, "Service connection removed");
 		}
 
 	};
@@ -159,19 +163,31 @@ public class StepCounterActivity extends Activity {
 	 */
 	public void updateLogCount() {
 		if(traceLinesText != null) {
-			traceLinesText.setText(Integer.toString(InteractionModelSingleton.get().logFileLines()));			
+			traceLinesText.setText(Integer.toString(Util.get().logFileLines()));			
 		}
 	}
+	
+	public void onDestroy() {
+    	/* take down the service */
+    	if(accellMeterServiceBound) {
+    		unbindService(accellMeterServiceConnection);
+    	}
+    	stopService(new Intent(this, AccellMeterService.class));
+		traceLineCountTask.cancel(true);
+		Util.get().closeFile();    
+    	super.onDestroy();
+    }   	
 	
 	/* Interaction with the UI. This function updates the value shown in the UI when
 	 * called by the UpdateStepCountTask.onProgressUpdate().
 	 */
 	public void updateStepsCount(Integer steps) {
 		/* 
-		 * Opgave: Vul deze code aan zodat het juiste veld de juiste waarde krijgt 
+		 * Opgave: Vul deze code aan zodat het juiste veld de juiste waarde krijgt.
 		 */
 	}
 	
+
     /* ====================================================================
      * This function is called when the activity is created.
      * 
@@ -235,7 +251,7 @@ public class StepCounterActivity extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int pos, long id) {
 				String detectorName = parent.getItemAtPosition(pos).toString();
-				InteractionModelSingleton.get().setStepDetector(detectorName);
+				Util.get().setStepDetector(detectorName);
 			}
 
 			public void onNothingSelected(AdapterView<?> arg0) {
@@ -267,14 +283,5 @@ public class StepCounterActivity extends Activity {
        	startService(i);	  
     }
 
-	public void onDestroy() {
-    	/* take down the service */
-    	if(accellMeterServiceBound) {
-    		unbindService(accellMeterServiceConnection);
-    	}
-    	stopService(new Intent(this, AccellMeterService.class));
-		traceLineCountTask.cancel(true);
-		InteractionModelSingleton.get().closeFile();    
-    	super.onDestroy();
-    }   
+
 }
